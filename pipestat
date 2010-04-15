@@ -1,0 +1,228 @@
+#!/usr/bin/perl
+# Pipestat, A nice tool to get statistics from any text in a pipe
+# Copyright Audun Ytterdal <audun@ytterdal.net>
+# Licenced under GPL Version 2.
+
+# TODO: field 4-5 4,6 etc
+# TODO: Merge ($1) ($2) etc.
+# TODO: Remove hits/s when cat'ing files
+# TODO: Removing stuff like where field='S' etc
+
+use Getopt::Long;
+use Data::Dumper;
+use Time::HiRes qw( time );
+
+# Unbuffered output
+$| = 1;
+
+# Catch Ctrl-C and friends
+$SIG{INT} = \&end_pipe;
+
+my $opt_freq;
+my $opt_match = 0;
+my $opt_case  = 0;
+my $opt_limit = 0;
+my $opt_field;
+my $opt_help = 0;
+my $opt_freqtime;
+my $opt_clear;
+my $opt_runtime;
+my $opt_runlines;
+my $opt_hits=1;
+
+my $result = GetOptions(
+	"freq=i"      => \$opt_freq,        # how often do we update in lines
+	"t|time=i"    => \$opt_freqtime,    # how often do we update in time
+	"r|runtime=i" => \$opt_runtime,     # when to stop
+	"runlines=i"  => \$opt_runlines,    # when to stop
+	"m|match"     => \$opt_match,       # regexp or match as key
+	"s|case"      => \$opt_case,        # key sensetive?
+	"c|clear"     => \$opt_clear,       # clear and updatescreen?
+	"f|field=s"   => \$opt_field,       # what field to use?
+	"h|hits"      => \$opt_hits,        # show hits/s
+	"l|limit=i"   => \$opt_limit,       # how many do we print
+	"h|help"      => \$opt_help
+);                                      # print help
+
+if ($opt_help) {
+	&help;
+}
+
+# The hash where we store objects
+my $objects;
+
+# counters
+my $freqcount = 0;
+my $starttime = time();
+my $freqtime  = $starttime;
+my $lines     = 0;
+
+while (<STDIN>) {
+	if ($opt_runtime) {    # end if we've run out of $opt_runtime;
+		&end_pipe if ( time() - $starttime >= $opt_runtime );
+	}
+	$lines++;
+	if ($opt_runlines) {    # end if we've run out of $opt_runlines;
+		&end_pipe if ( $lines >= $opt_runlines );
+	}
+	my $line = $_;
+	chomp $line;            # remove trailing newlines
+	for my $reg (@ARGV) {
+		if ($opt_case) {
+			if ( $line =~ m/$reg/ ) {
+				if ($opt_match) {
+					
+					$objects->{$1}++;    # add match as key
+				}
+				else {
+					$objects->{$reg}++;    # add regexp as key
+				}
+			}
+		}
+		else {
+			if ( $line =~ m/$reg/i ) {     # caseinsensetive is default
+				if ($opt_match) {
+					$objects->{$1}++;      # add match as key
+				}
+				else {
+					$objects->{$reg}++;    # add regexps as key
+				}
+			}
+		}
+	}
+	if ( !@ARGV ) {    # we didn't send regexp, count every line
+		if ($opt_field) {    # which field to use
+			my @fields    = split(",",$opt_field);
+			my @fieldlist = split(/\s+/,$line);
+			my $object;
+			for my $field (@fields) {
+				$object .= "$fieldlist[($field-1)] ";
+			}
+			chop($object);
+			$objects->{$object}++;
+		}
+		else {
+			$objects->{$line}++;
+		}
+	}
+	$freqcount++;
+	if ($opt_freq) {    # print out every <n> lines
+		printout( $objects, $lines, $starttime ) if ( $freqcount >= $opt_freq );
+		$freqcount = 0;
+	}
+	if ($opt_freqtime) {    # print out every <n> seconds
+		if ( time() - $freqtime >= $opt_freqtime ) {
+			printout( $objects, $lines, $starttime );
+			$freqtime = time();
+		}
+
+	}
+
+}
+&end_pipe;                  # we only get here if the pipe is closed.
+
+sub printout {
+	my ( $objects, $lines, $starttime ) = @_;
+	my $diff   = time() - $starttime;
+	my $hitsum = 0;
+	my $limit  = 0;
+	my $hitlimit;
+	my $limitedhits = 0;
+	if ($opt_clear) {       # if set, clear screen between prints
+		my $clear = `tput clear`;
+		print $clear;
+	}
+
+	# sort the hash values and print descending
+	for my $reg ( sort { $objects->{$b} <=> $objects->{$a} } keys %$objects ) {
+		$hitsum += $objects->{$reg};
+		if ( !$hitlimit ) {    # only print untill we hit the limit
+			if ($opt_hits) {
+				printf(
+					"%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+					$reg,
+					( $objects->{$reg} / $lines ) * 100,
+					$objects->{$reg} / $diff,
+					$objects->{$reg}, $lines
+				);
+			}
+			else {
+				printf(
+					"%-25s : (%.1f%%) (%d hits / %d)\n",
+					$reg, ( $objects->{$reg} / $lines ) * 100,
+					$objects->{$reg}, $lines
+				);
+			}
+		}
+		else {
+			$limitedhits += $objects->{$reg};
+		}
+		$limit++;
+		if ( $opt_limit && $limit >= $opt_limit ) {
+			$hitlimit++;
+		}
+	}
+	if ($hitlimit) {
+		if ($opt_hits) {
+			printf(
+				"%-25s : (%.1f%%) (%.1f hits/s) (%d(%d) hits(uniq) / %d)\n",
+				"<limited>",
+				( $limitedhits / $lines ) * 100,
+				$limitedhits / $diff,
+				$limitedhits, $hitlimit, $lines
+			);
+		}
+		else {
+			printf(
+				"%-25s : (%.1f%%) (%d(%d) hits(uniq) / %d)\n",
+				"<limited>", ( $limitedhits / $lines ) * 100,
+				$limitedhits, $hitlimit, $lines
+			);
+		}
+	}
+	my $rest = $lines - $hitsum;
+	if ($rest) {
+		if ($opt_hits) {
+			printf(
+				"%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+				"<rest>",
+				( $rest / $lines ) * 100,
+				$rest / $diff,
+				$rest, $lines
+			);
+		}
+		else {
+			printf(
+				"%-25s : (%.1f%%) (%d hits / %d)\n",
+				"<rest>", ( $rest / $lines ) * 100,
+				$rest, $lines
+			);
+		}
+	}
+	print "\n";
+}
+
+sub end_pipe {
+	printout( $objects, $lines, $starttime );
+	my $diff = time() - $starttime;
+	printf( "Parsed %d lines in %.2f secs (%.1f lines/s)\n",
+		$lines, $diff, $lines / $diff );
+	exit;
+}
+
+sub help {
+	print "pipestat usage\n";
+	print "someprogram | pipestat [options] [regexps]\n";
+	print "options:\n";
+	print "--freq <n>      - How often to update in lines, default never\n";
+	print "--time|t        - How often to update in seconds, default never\n";
+	print "--runtime|r <n> - How long to run in seconds, default forever\n";
+	print "--runlines <n>  - How long to run in lines, default forever\n";
+	print "--match|m       - Use regexp match as key instead of regexps\n";
+	print
+	  "--case|s        - Use casesensetive matching - default insensetive\n";
+	print "--field|f <n>   - if not using regexp, use this field from line\n";
+	print "--limit|l <n>   - Only show the top <n> hits\n";
+	print "--help|h        - This helpscreen\n";
+	exit;
+}
