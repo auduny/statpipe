@@ -18,51 +18,33 @@ $| = 1;
 # Catch Ctrl-C and friends
 $SIG{INT} = \&end_pipe;
 
-my $opt_linefreq;
-my $opt_timefreq=5;
-my $opt_maxtime;
+my $opt_linefreq; # Default none
+my $opt_timefreq=5; # Default every 5 second
+my $opt_maxtime=60; # Default 60 seconds
 my $opt_maxlines=5000000; # Stop at five million lines 
-my $opt_match = 0;
+my $opt_regex = 0;
 my $opt_case  = 0;
 my $opt_limit = 0;
 my $opt_field;
-my $opt_delimiter = '\s+';
+my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
 my $opt_help = 0;
-my $opt_clear;
-my $opt_hits=1;
-
-my $options = {
-"t|timefreq=i" => \$opt_timefreq,    # how often do we update in time
-"m|maxtime=i"  => \$opt_maxtime,     # when to stop
-"maxlines=i"   => \$opt_maxlines,    # when to stop
-"linefreq=i"   => \$opt_linefreq,    # how often do we update in lines
-"r|match"      => \$opt_match,       # regexp or match as key
-"s|case"       => \$opt_case,        # key sensetive?
-"c|clear"      => \$opt_clear,       # clear and updatescreen?
-"f|field=s"    => \$opt_field,       # what field to use?
-"d|delimiter=s" => \$opt_delimiter,   # What delimiter to use
-"h|hits"       => \$opt_hits,        # show hits/s
-"l|limit=i"    => \$opt_limit,       # how many do we print
-"h|help"       => \$opt_help
-};
-
-
-
+my $opt_clear=0; #Don't clean screen
+my $opt_hits=1; # show hits per second
 
 my $result = GetOptions(
-"t|timefreq=i" => \$opt_timefreq,    # how often do we update in time
-"m|maxtime=i"  => \$opt_maxtime,     # when to stop
-"maxlines=i"   => \$opt_maxlines,    # when to stop
-"linefreq=i"   => \$opt_linefreq,    # how often do we update in lines
-"r|match"      => \$opt_match,       # regexp or match as key
-"s|case"       => \$opt_case,        # key sensetive?
-"c|clear"      => \$opt_clear,       # clear and updatescreen?
-"f|field=s"    => \$opt_field,       # what field to use?
-"d|delimiter=s" => \$opt_delimiter,   # What delimiter to use
-"h|hits"       => \$opt_hits,        # show hits/s
-"l|limit=i"    => \$opt_limit,       # how many do we print
-"h|help"       => \$opt_help
-);                                      # print help
+"t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
+"m|maxtime=i"   => \$opt_maxtime,    # when to stop
+"maxlines=i"    => \$opt_maxlines,   # when to stop
+"linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
+"r|regex"       => \$opt_regex,      # regexp or match as key
+"s|case"        => \$opt_case,       # key sensetive?
+"c|clear"       => \$opt_clear,      # clear and updatescreen?
+"f|field=s"     => \$opt_field,      # what field to use?
+"d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
+"h|hits"        => \$opt_hits,       # show hits/s
+"l|limit=i"     => \$opt_limit,      # how many do we print
+"h|help"        => \$opt_help        # Print help 
+);                                      
 
 if ($opt_help) {
     &help;
@@ -97,7 +79,7 @@ while (<STDIN>) {
     for my $reg (@ARGV) {
         if ($opt_case) {
             if ( $line =~ m/$reg/ ) {
-                if ($opt_match) {
+                if ($opt_regex) {
 
                     $objects->{$1}++;    # add match as key
                 }
@@ -108,7 +90,7 @@ while (<STDIN>) {
         }
         else {
             if ( $line =~ m/$reg/i ) {     # caseinsensetive is default
-                if ($opt_match) {
+                if ($opt_regex) {
                     $objects->{$1}++;      # add match as key
                 }
                 else {
@@ -242,15 +224,21 @@ sub help {
     print "pipestat usage\n";
     print "someprogram | pipestat [options] [regexps]\n";
     print "options:\n";
-    print "--freq <n>      - How often to update in lines, default never\n";
-    print "--time|t        - How often to update in seconds, default never\n";
-    print "--runtime|r <n> - How long to run in seconds, default forever\n";
-    print "--runlines <n>  - How long to run in lines, default forever\n";
-    print "--match|m       - Use regexp match as key instead of regexps\n";
-    print
-    "--case|s        - Use casesensetive matching - default insensetive\n";
-    print "--field|f <n>   - if not using regexp, use this field from line\n";
-    print "--limit|l <n>   - Only show the top <n> hits\n";
-    print "--help|h        - This helpscreen\n";
+    print " -r|--regex     # Create key from match\n";
+    print " -t|--timefreq  # How often do we update in time (default: 5 seconds)\n";
+    print " -m|--maxtime   # Stop after this number of seconds (default: 60 seconds)\n";
+    print " --linefreq    # How often do we update in lines (default: never\n";
+    print " --maxlines    # Max number of lines do we read (default 5 million)\n";
+    print " -s|--case      # Be case sensetive (default: caseinsensetive)\n";
+    print " -c|--clear     # Clear screen between updates (default: no)\n";
+    print " -f|--field     # what field to use?\n";
+    print " -d|--delimiter # What regex delimiter to use (default: space)\n";
+    print " -h|--hits      # Show hits/s (default: on\n";
+    print " -l|--limit     # Limit how many to print (default: all)\n";
+    print " -h|--help      # Show this help\n";
+    print "\n";
+    print "Examples\n";
+    print "tail -f /var/log/httpd/access.log | pipestat -r 'GET ([^\s]+)'\n";
+    print "tail -f /var/log/httpd/access.log | pipestat --field 6";
     exit;
 }
