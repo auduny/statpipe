@@ -37,7 +37,6 @@ my $result = GetOptions(
 "m|maxtime=i"   => \$opt_maxtime,    # when to stop
 "maxlines=i"    => \$opt_maxlines,   # when to stop
 "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
-"r|regex"       => \$opt_regex,      # regexp as key
 "maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
 "n|not=s"       => \$opt_not,        # Not these
 "s|case"        => \$opt_case,       # key sensetive?
@@ -96,22 +95,19 @@ while (<STDIN>) {
     for my $reg (@ARGV) {
         if ($opt_case) {
             if ( $line =~ m/$reg/ ) {
-                if ($opt_regex) {
-
-                    $objects->{$reg}++;    # add regex as key
-                }
-                else {
+                if ($1) {
                     $objects->{$1}++;    # add match as key
+                } else {
+                    $objects->{$reg}++;    # add regex as key
                 }
             }
         }
         else {
             if ( $line =~ m/$reg/i ) {     # caseinsensetive is default
-                if ($opt_regex) {
-                    $objects->{$reg}++;      # add regexp as key
-                }
-                else {
+                if ($1) {
                     $objects->{$1}++;    # add match as key
+                } else {
+                    $objects->{$reg}++;      # add regexp as key
                 }
             }
         }
@@ -258,7 +254,6 @@ sub help {
     print "pipestat usage\n";
     print "someprogram | pipestat [options] [regexps]\n";
     print "options:\n";
-    print " -r|--regex     # Use Regexp as key\n";
     print " -t|--timefreq  # How often do we update in time (default: 5 seconds)\n";
     print " -m|--maxtime   # Stop after this number of seconds (default: 60 seconds)\n";
     print " --linefreq     # How often do we update in lines (default: never\n";
@@ -273,7 +268,9 @@ sub help {
     print " -h|--help      # Show this help\n";
     print "\n";
     print "Examples\n";
-    print "tail -f /var/log/httpd/access.log | pipestat 'JPG\n";
+    print "tail -f /var/log/httpd/access.log | pipestat 'gif' 'jpe?g'";
+    print "tail -f /var/log/httpd/access.log | pipestat 'gif' '(jpe?g)'";
     print "tail -f /var/log/httpd/access.log | pipestat --field 6";
+    print "tail -f /var/log/httpd/access.log | pipestat --field 1 --not '127\.0\.0\.1";
     exit;
 }
