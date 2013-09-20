@@ -22,9 +22,10 @@ my $opt_linefreq; # Default none
 my $opt_timefreq=5; # Default every 5 second
 my $opt_maxtime=60; # Default 60 seconds
 my $opt_maxlines=5000000; # Stop at five million lines 
+my $opt_maxkeys=500000;
 my $opt_regex = 0;
 my $opt_case  = 0;
-my $opt_limit = 0;
+my $opt_limit = 30;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
 my $opt_help = 0;
@@ -36,7 +37,9 @@ my $result = GetOptions(
 "m|maxtime=i"   => \$opt_maxtime,    # when to stop
 "maxlines=i"    => \$opt_maxlines,   # when to stop
 "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
-"r|regex"       => \$opt_regex,      # regexp or match as key
+"r|regex"       => \$opt_regex,      # regexp as key
+"maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
+"n|not=s"       => \$opt_not,        # Not these
 "s|case"        => \$opt_case,       # key sensetive?
 "c|clear"       => \$opt_clear,      # clear and updatescreen?
 "f|field=s"     => \$opt_field,      # what field to use?
@@ -58,13 +61,22 @@ my $freqcount = 0;
 my $starttime = time();
 my $freqtime  = $starttime;
 my $lines     = 0;
+my $keys      = 0;
 my $now = time();
 
 while (<STDIN>) {
     $now = time();
+    $lines++;
+    if ($opt_maxkeys) {
+        $keys = keys %$objects;
+        if ($keys > $opt_maxkeys) {
+            print "Maxkeys ($opt_maxkeys) reached\n";
+            &end_pipe;
+        }
+    }
     if ($opt_maxtime) {
         if ($now - $starttime >= $opt_maxtime) {
-            print "Maxtime of $opt_maxtime seconds reached.\n\n";
+            print "Maxtime of $opt_maxtime seconds reached.\n";
             &end_pipe;
         }
     }
@@ -76,25 +88,30 @@ while (<STDIN>) {
     }
     my $line = $_;
     chomp $line;            # remove trailing newlines
+    if ($opt_not) {
+        if ($line =~ m/$opt_not/) {
+            next;
+        }
+    }
     for my $reg (@ARGV) {
         if ($opt_case) {
             if ( $line =~ m/$reg/ ) {
                 if ($opt_regex) {
 
-                    $objects->{$1}++;    # add match as key
+                    $objects->{$reg}++;    # add regex as key
                 }
                 else {
-                    $objects->{$reg}++;    # add regexp as key
+                    $objects->{$1}++;    # add match as key
                 }
             }
         }
         else {
             if ( $line =~ m/$reg/i ) {     # caseinsensetive is default
                 if ($opt_regex) {
-                    $objects->{$1}++;      # add match as key
+                    $objects->{$reg}++;      # add regexp as key
                 }
                 else {
-                    $objects->{$reg}++;    # add regexps as key
+                    $objects->{$1}++;    # add match as key
                 }
             }
         }
@@ -126,7 +143,6 @@ while (<STDIN>) {
         }
 
     }
-    $lines++;
 
 }
 &end_pipe;                  # we only get here if the pipe is closed.
@@ -209,10 +225,28 @@ sub printout {
             );
         }
     }
+    if ($opt_hits) {
+        printf(
+            "%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+            "<total>",
+            100,
+            $hitsum / $diff,
+            $hitsum, $lines
+        );
+    }
+    else {
+        printf(
+            "%-25s : (%.1f%%) (%d hits / %d)\n",
+            $reg, ( $objects->{$reg} / $lines ) * 100,
+            $objects->{$reg}, $lines
+        );
+    }
+
     print "\n";
 }
 
 sub end_pipe {
+    print "\n";
     printout( $objects, $lines, $starttime );
     my $diff = time() - $starttime;
     printf( "Parsed %d lines in %.2f secs (%.1f lines/s)\n",
@@ -224,21 +258,22 @@ sub help {
     print "pipestat usage\n";
     print "someprogram | pipestat [options] [regexps]\n";
     print "options:\n";
-    print " -r|--regex     # Create key from match\n";
+    print " -r|--regex     # Use Regexp as key\n";
     print " -t|--timefreq  # How often do we update in time (default: 5 seconds)\n";
     print " -m|--maxtime   # Stop after this number of seconds (default: 60 seconds)\n";
-    print " --linefreq    # How often do we update in lines (default: never\n";
-    print " --maxlines    # Max number of lines do we read (default 5 million)\n";
+    print " --linefreq     # How often do we update in lines (default: never\n";
+    print " --maxlines     # Max number of lines do we read (default 5 million)\n";
     print " -s|--case      # Be case sensetive (default: caseinsensetive)\n";
     print " -c|--clear     # Clear screen between updates (default: no)\n";
     print " -f|--field     # what field to use?\n";
     print " -d|--delimiter # What regex delimiter to use (default: space)\n";
     print " -h|--hits      # Show hits/s (default: on\n";
-    print " -l|--limit     # Limit how many to print (default: all)\n";
+    print " -l|--limit     # Limit how many to print (default: 30)\n";
+    print " -n|--not       # Exclude lines with this regexp\n";
     print " -h|--help      # Show this help\n";
     print "\n";
     print "Examples\n";
-    print "tail -f /var/log/httpd/access.log | pipestat -r 'GET ([^\s]+)'\n";
+    print "tail -f /var/log/httpd/access.log | pipestat 'JPG\n";
     print "tail -f /var/log/httpd/access.log | pipestat --field 6";
     exit;
 }
