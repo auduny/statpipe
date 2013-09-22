@@ -1,12 +1,21 @@
 #!/usr/bin/perl
-# Pipestat, A nice tool to get statistics from any text in a pipe
 # Copyright Audun Ytterdal <audun@ytterdal.net>
 # Licenced under GPL Version 2.
-
-# TODO: field 4-5 4,6 etc
 # TODO: Merge ($1) ($2) etc.
-# TODO: Remove hits/s when cat'ing files
-# TODO: Removing stuff like where field='S' etc
+# TODO: Switch to caculate percentage of hits instead of total
+
+=head1 NAME
+
+Pipestat - swiss knife statistics, command line splunk alternative
+
+=head1 SYNOPSIS
+
+tail -f /var/log/httpd/access.log | pipestat '(jpe?g)' 'gif' 'png'
+tail -f /var/log/httpd/access.log | pipestat -f 7 --maxtime=10
+
+=head1 DESCRIPTION
+
+=cut
 
 use Getopt::Long;
 #use Data::Dumper;
