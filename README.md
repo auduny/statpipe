@@ -28,12 +28,14 @@ It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uni
 
 # EXAMPLES
 
-- tail -f /var/log/httpd/access.log | pipestat -f 7
+    tail -f /var/log/httpd/access.log | pipestat -f 7
 
-    I love norwegian country
+    tail -f /var/log/httpd/access.log | pipestat -d \\" -f 2
 
-- tail -f /var/log/httpd/access.log | pipestat -d \\" -f 2
-- tail -f /var/log/httpd/access.log | pipestat jpe?g png gif
-- tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
-- tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
-- tail -f /var/log/httpd/access.log | pipestat 'artid=(\\d+)' --maxtime=30 --limit 20 
+    tail -f /var/log/httpd/access.log | pipestat jpe?g png gif
+
+    tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
+
+    tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
+
+    tail -f /var/log/httpd/access.log | pipestat 'artid=(\\d+)' --maxtime=30 --limit 20 
