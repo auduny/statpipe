@@ -292,7 +292,7 @@ sub end_pipe {
 
 =head1 EXAMPLES
 
-=over 8
+=over 4
 
 =item tail -f /var/log/httpd/access.log | pipestat -f 7
 
