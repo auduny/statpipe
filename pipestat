@@ -6,7 +6,7 @@
 
 =head1 NAME
 
-Pipestat - swiss knife statistics, command line splunk alternative
+Pipestat - swiss knife statistics
 
 =cut
 
@@ -41,6 +41,7 @@ my $result = GetOptions(
 "m|maxtime=i"   => \$opt_maxtime,    # when to stop
 "maxlines=i"    => \$opt_maxlines,   # when to stop
 "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
+"l|limit=i"     => \$opt_limit,      # how many do we print
 "maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
 "n|not=s"       => \$opt_not,        # Not these
 "s|case"        => \$opt_case,       # key sensetive?
@@ -48,14 +49,14 @@ my $result = GetOptions(
 "f|field=s"     => \$opt_field,      # what field to use?
 "d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
 "h|hits!"       => \$opt_hits,       # show hits/s
-"l|limit=i"     => \$opt_limit,      # how many do we print
 "h|help"        => \$opt_help,       # Print help 
 "v|version"     => \$opt_version     # Print version
 );                                      
 
+
 =head1 SYNOPSIS
 
-<datastream> | pipestat [options] [regex] ... [regex]
+tail -f some.log  | pipestat [options] [regex] ... [regex]
 
  Options:
   --timefreq|-t     Frequency of output in seconds (5)
@@ -64,11 +65,11 @@ my $result = GetOptions(
   --maxlines        Maximum numbers of lines to parse (unlimited)
   --field|f         What field top use as key
   --delimiter|d     What delimiter to use for fields (spaces)
+  --limit           Limit output of keys (30)
   --maxkeys         Max number of unique keys (50000)
   --not|n           Exclude lines with regex
   --case|s          Be casesensetive
   --hits            Show hits per second (yes)
-  --limit           Limit output of keys (30)
   --help            Show help
   --version         Show version
 
@@ -76,10 +77,6 @@ my $result = GetOptions(
 
 Pipestat is a excellent little tool to analyse logfiles, or any file for that matter, and produce percentage of hits, hits per second and other cool stuff.
 It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uniqeue | whaterver. Or as a poor mans splunk
-
-=head1 Examples
-
-tail -f /var/log/httpd/access.log | pipestat -f 
 
 =cut
 
@@ -293,3 +290,24 @@ sub end_pipe {
     exit;
 }
 
+=head1 EXAMPLES
+
+=over 8
+
+=item tail -f /var/log/httpd/access.log | pipestat -f 7
+
+I love norwegian country
+
+=item tail -f /var/log/httpd/access.log | pipestat -d \" -f 2
+
+=item tail -f /var/log/httpd/access.log | pipestat jpe?g png gif
+
+=item tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
+
+=item tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif
+
+=item tail -f /var/log/httpd/access.log | pipestat 'artid=(\d+)' --maxtime=30 --limit 20 
+
+=back
+
+=cut
