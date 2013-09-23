@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 # Copyright Audun Ytterdal <audun@ytterdal.net>
 # Licenced under GPL Version 2.
-# TODO: Merge ($1) ($2) etc.
-# TODO: Switch to caculate percentage of hits instead of total
 
 =head1 NAME
 
@@ -138,16 +136,16 @@ while (<STDIN>) {
                 if ($1) {
                     $objects->{$1}++;    # add match as key
                 } else {
-                    $objects->{$reg}++;    # add regex as key
+                    $objects->{$reg}++;  # add regex as key
                 }
             }
         }
         else {
-            if ( $line =~ m/$reg/i ) {     # caseinsensetive is default
+            if ( $line =~ m/$reg/i ) {   # caseinsensetive is default
                 if ($1) {
                     $objects->{$1}++;    # add match as key
                 } else {
-                    $objects->{$reg}++;      # add regexp as key
+                    $objects->{$reg}++;  # add regexp as key
                 }
             }
         }
@@ -310,5 +308,12 @@ List top articles the last 10 seconds
 $ tail -f /var/log/httpd/access.log | pipestat 'artid=(\d+)' --maxtime=10 --limit 20 
 
 =back
+
+=HEAD1 TODO
+
+TODO: Merge ($1) ($2) etc.
+TODO: Switch to caculate percentage of hits instead of total
+TODO: Name change: PMS? (Poor mans Splunk)
+
 
 =cut
