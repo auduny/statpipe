@@ -31,14 +31,14 @@ It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uni
     Show field two
     $ tail -f /var/log/httpd/access.log | pipestat -f 7
 
-    \# Seperate fields by " and show field two
+    Seperate fields by " and show field two
     $ tail -f /var/log/httpd/access.log | pipestat -d \\" -f 2
 
-    \# Group jpeg and jpg differently
+    Group jpeg and jpg differently
     $ tail -f /var/log/httpd/access.log | pipestat jpe?g png gif
 
-    \# Group jpeg and jpg into one key
+    Group jpeg and jpg into one key
     $ tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif --not gift
 
-    \# List top articles the last 10 seconds
+    List top articles the last 10 seconds
     $ tail -f /var/log/httpd/access.log | pipestat 'artid=(\\d+)' --maxtime=10 --limit 20 
