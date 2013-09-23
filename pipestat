@@ -8,36 +8,31 @@
 
 Pipestat - swiss knife statistics, command line splunk alternative
 
-=head1 SYNOPSIS
-
-tail -f /var/log/httpd/access.log | pipestat '(jpe?g)' 'gif' 'png'
-tail -f /var/log/httpd/access.log | pipestat -f 7 --maxtime=10
-
-=head1 DESCRIPTION
-
 =cut
+
+my $version="1.0";
 
 use Getopt::Long;
 #use Data::Dumper;
 use Time::HiRes qw( time );
-
+use Pod::Usage;
 # Unbuffered output
 $| = 1;
-
 # Catch Ctrl-C and friends
 $SIG{INT} = \&end_pipe;
 
 my $opt_linefreq; # Default none
 my $opt_timefreq=5; # Default every 5 second
 my $opt_maxtime=60; # Default 60 seconds
-my $opt_maxlines=5000000; # Stop at five million lines 
-my $opt_maxkeys=500000;
+my $opt_maxlines=0; # Stop at five million lines 
+my $opt_maxkeys=50000;
 my $opt_regex = 0;
 my $opt_case  = 0;
 my $opt_limit = 30;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
 my $opt_help = 0;
+my $opt_version = 0;
 my $opt_clear=0; #Don't clean screen
 my $opt_hits=1; # show hits per second
 
@@ -52,13 +47,51 @@ my $result = GetOptions(
 "c|clear"       => \$opt_clear,      # clear and updatescreen?
 "f|field=s"     => \$opt_field,      # what field to use?
 "d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
-"h|hits"        => \$opt_hits,       # show hits/s
+"h|hits!"       => \$opt_hits,       # show hits/s
 "l|limit=i"     => \$opt_limit,      # how many do we print
-"h|help"        => \$opt_help        # Print help 
+"h|help"        => \$opt_help,       # Print help 
+"v|version"     => \$opt_version     # Print version
 );                                      
 
+=head1 SYNOPSIS
+
+<datastream> | pipestat [options] [regex] ... [regex]
+
+ Options:
+  --timefreq|-t     Frequency of output in seconds (5)
+  --linefreq        Frequency of output in lines (none)
+  --maxtime|-m      Time before closing the pipe in seconds (60)
+  --maxlines        Maximum numbers of lines to parse (unlimited)
+  --field|f         What field top use as key
+  --delimiter|d     What delimiter to use for fields (spaces)
+  --maxkeys         Max number of unique keys (50000)
+  --not|n           Exclude lines with regex
+  --case|s          Be casesensetive
+  --hits            Show hits per second (yes)
+  --limit           Limit output of keys (30)
+  --help            Show help
+  --version         Show version
+
+=head1 DESCRIPTION
+
+Pipestat is a excellent little tool to analyse logfiles, or any file for that matter, and produce percentage of hits, hits per second and other cool stuff.
+It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uniqeue | whaterver. Or as a poor mans splunk
+
+=head1 Examples
+
+tail -f /var/log/httpd/access.log | pipestat -f 
+
+=cut
+
+
 if ($opt_help) {
-    &help;
+    pod2usage("Pipestat $version by Audun Ytterdal <audun\@ytterdal.net>\n");
+    exit(0);
+}
+
+if ($opt_version) {
+    print "$version\n"; 
+    exit(0);
 }
 
 # The hash where we store objects
@@ -71,6 +104,7 @@ my $freqtime  = $starttime;
 my $lines     = 0;
 my $keys      = 0;
 my $now = time();
+
 
 while (<STDIN>) {
     $now = time();
@@ -259,27 +293,3 @@ sub end_pipe {
     exit;
 }
 
-sub help {
-    print "pipestat usage\n";
-    print "someprogram | pipestat [options] [regexps]\n";
-    print "options:\n";
-    print " -t|--timefreq  # How often do we update in time (default: 5 seconds)\n";
-    print " -m|--maxtime   # Stop after this number of seconds (default: 60 seconds)\n";
-    print " --linefreq     # How often do we update in lines (default: never\n";
-    print " --maxlines     # Max number of lines do we read (default 5 million)\n";
-    print " -s|--case      # Be case sensetive (default: caseinsensetive)\n";
-    print " -c|--clear     # Clear screen between updates (default: no)\n";
-    print " -f|--field     # what field to use?\n";
-    print " -d|--delimiter # What regex delimiter to use (default: space)\n";
-    print " -h|--hits      # Show hits/s (default: on\n";
-    print " -l|--limit     # Limit how many to print (default: 30)\n";
-    print " -n|--not       # Exclude lines with this regexp\n";
-    print " -h|--help      # Show this help\n";
-    print "\n";
-    print "Examples\n";
-    print "tail -f /var/log/httpd/access.log | pipestat 'gif' 'jpe?g'";
-    print "tail -f /var/log/httpd/access.log | pipestat 'gif' '(jpe?g)'";
-    print "tail -f /var/log/httpd/access.log | pipestat --field 6";
-    print "tail -f /var/log/httpd/access.log | pipestat --field 1 --not '127\.0\.0\.1";
-    exit;
-}
