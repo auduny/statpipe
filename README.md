@@ -28,7 +28,7 @@ It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uni
 
 # EXAMPLES
 
-    Show field two
+    Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
     $ tail -f /var/log/httpd/access.log | pipestat -f 7
 
     Seperate fields by " and show field two
