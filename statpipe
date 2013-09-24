@@ -29,7 +29,7 @@ my $opt_case  = 0;
 my $opt_limit = 30;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
-my $opt_keysize = 40;
+my $opt_keysize = 30;
 my $opt_help = 0;
 my $opt_version = 0;
 my $opt_hits=1; # Show hits per second
@@ -237,7 +237,7 @@ sub printout {
     if ($hitlimit) {
         if ($opt_hits) {
             printf(
-                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d(%d) hits(uniq) / %d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d(%d uniqe)/%d)\n",
                 "<limited>",
                 ( $limitedhits / $divider ) * 100,
                 $limitedhits / $diff,
@@ -246,7 +246,7 @@ sub printout {
         }
         else {
             printf(
-                "%-".$opt_keysize."s: (%-4.1f%%) (%d(%d) hits(uniq) / %d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%d(%d unique)/%d)\n",
                 "<limited>", ( $limitedhits / $divider ) * 100,
                 $limitedhits, $hitlimit, $lines
             );
