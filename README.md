@@ -48,12 +48,11 @@ TODO: Merge ($1) ($2) etc.
 TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 
-
 ```ruby
-
 foo = fisk
 bar
 zoo
-
 ```
+
+Ninja
 
