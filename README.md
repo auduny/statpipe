@@ -28,7 +28,7 @@ statpipe is a excellent little tool to analyse logfiles, or any file for that ma
 It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uniqeue | whaterver. Or as a poor mans splunk
 
 # EXAMPLES
-
+```lang=console
     Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
     $ tail -f /var/log/httpd/access.log | statpipe -f 7
 
