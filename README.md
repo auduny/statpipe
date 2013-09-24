@@ -49,9 +49,11 @@ TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 
 
-```
-foo
+```ruby
+
+foo = fisk
 bar
 zoo
+
 ```
 
