@@ -28,7 +28,7 @@ statpipe is a excellent little tool to analyse logfiles, or any file for that ma
 It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uniqeue | whaterver. Or as a poor mans splunk
 
 # EXAMPLES
-
+```lang=console
     Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
     $ tail -f /var/log/httpd/access.log | statpipe -f 7
 
@@ -47,5 +47,14 @@ It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uni
 TODO: Merge ($1) ($2) etc.
 TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
+```
 
+
+```style=colorful
+foo = fisk
+bar
+zoo
+```
+
+Ninja
 
