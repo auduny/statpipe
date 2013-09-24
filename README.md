@@ -47,8 +47,10 @@ It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uni
 TODO: Merge ($1) ($2) etc.
 TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
+```
 
-```ruby
+
+```style=colorful
 foo = fisk
 bar
 zoo
