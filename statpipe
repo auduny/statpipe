@@ -29,10 +29,12 @@ my $opt_case  = 0;
 my $opt_limit = 30;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
+my $opt_keysize = 40;
 my $opt_help = 0;
 my $opt_version = 0;
+my $opt_hits=1; # Show hits per second
 my $opt_clear=0; #Don't clean screen
-my $opt_hits=1; # show hits per second
+my $opt_relative=0; 
 
 my $result = GetOptions(
 "t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
@@ -46,7 +48,9 @@ my $result = GetOptions(
 "c|clear"       => \$opt_clear,      # clear and updatescreen?
 "f|field=s"     => \$opt_field,      # what field to use?
 "d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
-"h|hits!"       => \$opt_hits,       # show hits/s
+"r|relative!"   => \$opt_relative,   # show relative percentages for hits
+"k|keysize=i" => \$opt_keysize,  # What delimiter to use
+"hits!"       => \$opt_hits,       # show hits/s
 "h|help"        => \$opt_help,       # Print help 
 "v|version"     => \$opt_version     # Print version
 );                                      
@@ -67,7 +71,8 @@ tail -f some.log  | statpipe [options] [regex] ... [regex]
   --maxkeys         Max number of unique keys (50000)
   --not|n           Exclude lines with regex
   --case|s          Be casesensetive
-  --hits            Show hits per second (yes)
+  --relative|r      Show relative percentages
+  --(no)hits        Show hits per second (yes)
   --help            Show help
   --version         Show version
 
@@ -98,6 +103,7 @@ my $starttime = time();
 my $freqtime  = $starttime;
 my $lines     = 0;
 my $keys      = 0;
+my $hitcount  = 0;
 my $now = time();
 
 
@@ -133,6 +139,7 @@ while (<STDIN>) {
     for my $reg (@ARGV) {
         if ($opt_case) {
             if ( $line =~ m/$reg/ ) {
+                $hitcount++;
                 if ($1) {
                     $objects->{$1}++;    # add match as key
                 } else {
@@ -142,6 +149,7 @@ while (<STDIN>) {
         }
         else {
             if ( $line =~ m/$reg/i ) {   # caseinsensetive is default
+                $hitcount++;
                 if ($1) {
                     $objects->{$1}++;    # add match as key
                 } else {
@@ -151,6 +159,7 @@ while (<STDIN>) {
         }
     }
     if ( !@ARGV ) {    # we didn't send regexp, count every line
+        $hitcount++;
         if ($opt_field) {    # which field to use
             my @fields    = split(",",$opt_field);
             my @fieldlist = split(/$opt_delimiter/,$line);
@@ -184,32 +193,35 @@ while (<STDIN>) {
 sub printout {
     my ( $objects, $lines, $starttime ) = @_;
     my $diff   = time() - $starttime;
-    my $hitsum = 0;
     my $limit  = 0;
     my $hitlimit;
     my $limitedhits = 0;
+    my $divider=0;
     if ($opt_clear) {       # if set, clear screen between prints
         my $clear = `tput clear`;
         print $clear;
     }
-
     # sort the hash values and print descending
     for my $reg ( sort { $objects->{$b} <=> $objects->{$a} } keys %$objects ) {
-        $hitsum += $objects->{$reg};
+        if ($opt_relative) {
+            $divider=$hitcount;
+        } else {
+            $divider=$lines;
+        }
         if ( !$hitlimit ) {    # only print untill we hit the limit
             if ($opt_hits) {
                 printf(
-                    "%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+                    "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
                     $reg,
-                    ( $objects->{$reg} / $lines ) * 100,
+                    ( $objects->{$reg} / $divider ) * 100,
                     $objects->{$reg} / $diff,
                     $objects->{$reg}, $lines
                 );
             }
             else {
                 printf(
-                    "%-25s : (%.1f%%) (%d hits / %d)\n",
-                    $reg, ( $objects->{$reg} / $lines ) * 100,
+                    "%-".$opt_keysize."s: (%-4.1f%%) (%d/%d)\n",
+                    $reg, ( $objects->{$reg} / $divider ) * 100,
                     $objects->{$reg}, $lines
                 );
             }
@@ -225,53 +237,52 @@ sub printout {
     if ($hitlimit) {
         if ($opt_hits) {
             printf(
-                "%-25s : (%.1f%%) (%.1f hits/s) (%d(%d) hits(uniq) / %d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d(%d) hits(uniq) / %d)\n",
                 "<limited>",
-                ( $limitedhits / $lines ) * 100,
+                ( $limitedhits / $divider ) * 100,
                 $limitedhits / $diff,
                 $limitedhits, $hitlimit, $lines
             );
         }
         else {
             printf(
-                "%-25s : (%.1f%%) (%d(%d) hits(uniq) / %d)\n",
-                "<limited>", ( $limitedhits / $lines ) * 100,
+                "%-".$opt_keysize."s: (%-4.1f%%) (%d(%d) hits(uniq) / %d)\n",
+                "<limited>", ( $limitedhits / $divider ) * 100,
                 $limitedhits, $hitlimit, $lines
             );
         }
     }
-    my $rest = $lines - $hitsum;
+    my $rest = $lines - $hitcount;
     if ($rest) {
         if ($opt_hits) {
             printf(
-                "%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
                 "<rest>",
-                ( $rest / $lines ) * 100,
+                ( $rest / $divider ) * 100,
                 $rest / $diff,
                 $rest, $lines
             );
         }
         else {
             printf(
-                "%-25s : (%.1f%%) (%d hits / %d)\n",
-                "<rest>", ( $rest / $lines ) * 100,
+                "%-".$opt_keysize."s: (%-4.1f%%) (%d/%d)\n",
+                "<rest>", ( $rest / $divider ) * 100,
                 $rest, $lines
             );
         }
     }
     if ($opt_hits) {
         printf(
-            "%-25s : (%.1f%%) (%.1f hits/s) (%d hits / %d)\n",
+            "%-".$opt_keysize."s: (100 %) (%.1f h/s) (%d/%d)\n",
             "<total>",
-            100,
-            $hitsum / $diff,
-            $hitsum, $lines
+            $hitcount / $diff,
+            $hitcount, $lines
         );
     }
     else {
         printf(
-            "%-25s : (%.1f%%) (%d hits / %d)\n",
-            $reg, ( $objects->{$reg} / $lines ) * 100,
+            "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
+            "<total>", ( $objects->{$reg} / $divider ) * 100,
             $objects->{$reg}, $lines
         );
     }

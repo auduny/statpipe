@@ -17,7 +17,8 @@ tail -f some.log  | statpipe \[options\] \[regex\] ... \[regex\]
      --maxkeys         Max number of unique keys (50000)
      --not|n           Exclude lines with regex
      --case|s          Be casesensetive
-     --hits            Show hits per second (yes)
+     --relative|r      Show relative percentages
+     --(no)hits        Show hits per second (yes)
      --help            Show help
      --version         Show version
 
