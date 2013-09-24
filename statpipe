@@ -293,6 +293,11 @@ sub printout {
 }
 
 sub end_pipe {
+    if (!$lines) {
+        print "No lines parsed, did you feed me through a pipe?\n";
+        pod2usage("statpipe $version by Audun Ytterdal <audun\@ytterdal.net>\n");
+        exit(0);
+    }
     print "\n";
     printout( $objects, $lines, $starttime );
     my $diff = time() - $starttime;
