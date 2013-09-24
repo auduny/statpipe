@@ -1,10 +1,10 @@
 # NAME
 
-Pipestat - swiss knife statistics
+statpipe - swiss knife statistics
 
 # SYNOPSIS
 
-tail -f some.log  | pipestat \[options\] \[regex\] ... \[regex\]
+tail -f some.log  | statpipe \[options\] \[regex\] ... \[regex\]
 
     Options:
      --timefreq|-t     Frequency of output in seconds (5)
@@ -23,22 +23,28 @@ tail -f some.log  | pipestat \[options\] \[regex\] ... \[regex\]
 
 # DESCRIPTION
 
-Pipestat is a excellent little tool to analyse logfiles, or any file for that matter, and produce percentage of hits, hits per second and other cool stuff.
+statpipe is a excellent little tool to analyse logfiles, or any file for that matter, and produce percentage of hits, hits per second and other cool stuff.
 It's supposed to be a better way of doin tail -f | awk | cut| unique  |sort |uniqeue | whaterver. Or as a poor mans splunk
 
 # EXAMPLES
-```console
-Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
-$ tail -f /var/log/httpd/access.log | pipestat -f 7
-```
+
+    Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
+    $ tail -f /var/log/httpd/access.log | statpipe -f 7
+
     Seperate fields by " and show field two
-    $ tail -f /var/log/httpd/access.log | pipestat -d \\" -f 2
+    $ tail -f /var/log/httpd/access.log | statpipe -d \\" -f 2
 
     Group jpeg and jpg differently
-    $ tail -f /var/log/httpd/access.log | pipestat jpe?g png gif
+    $ tail -f /var/log/httpd/access.log | statpipe jpe?g png gif
 
     Group jpeg and jpg into one key
-    $ tail -f /var/log/httpd/access.log | pipestat (jpe?g) png gif --not gift
+    $ tail -f /var/log/httpd/access.log | statpipe (jpe?g) png gif --not gift
 
     List top articles the last 10 seconds
-    $ tail -f /var/log/httpd/access.log | pipestat 'artid=(\\d+)' --maxtime=10 --limit 20 
+    $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\\d+)' --maxtime=10 --limit 20 
+
+TODO: Merge ($1) ($2) etc.
+TODO: Switch to caculate percentage of hits instead of total
+TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
+
+
