@@ -237,7 +237,7 @@ sub printout {
     if ($hitlimit) {
         if ($opt_hits) {
             printf(
-                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d(%d uniqe)/%d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d(%d)/%d)\n",
                 "<limited>",
                 ( $limitedhits / $divider ) * 100,
                 $limitedhits / $diff,
@@ -246,13 +246,31 @@ sub printout {
         }
         else {
             printf(
-                "%-".$opt_keysize."s: (%-4.1f%%) (%d(%d unique)/%d)\n",
+                "%-".$opt_keysize."s: (%-4.1f%%) (%d(%d)/%d)\n",
                 "<limited>", ( $limitedhits / $divider ) * 100,
                 $limitedhits, $hitlimit, $lines
             );
         }
     }
     my $rest = $lines - $hitcount;
+    if ($opt_hits) {
+        printf(
+            "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
+            "<total>",
+            ($hitcount / $lines) * 100,
+            $hitcount / $diff,
+            $hitcount, $lines
+        );
+    }
+    else {
+        printf(
+            "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
+            "<total>", 
+            ($hitcount / $divider) * 100,
+            $hitcount, $lines
+        );
+    }
+
     if ($rest) {
         if ($opt_hits) {
             printf(
@@ -271,22 +289,6 @@ sub printout {
             );
         }
     }
-    if ($opt_hits) {
-        printf(
-            "%-".$opt_keysize."s: (100 %) (%.1f h/s) (%d/%d)\n",
-            "<total>",
-            $hitcount / $diff,
-            $hitcount, $lines
-        );
-    }
-    else {
-        printf(
-            "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
-            "<total>", ( $objects->{$reg} / $divider ) * 100,
-            $objects->{$reg}, $lines
-        );
-    }
-
     print "\n";
 }
 
