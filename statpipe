@@ -22,7 +22,7 @@ $SIG{INT} = \&end_pipe;
 my $opt_linefreq; # Default none
 my $opt_timefreq=5; # Default every 5 second
 my $opt_maxtime=60; # Default 60 seconds
-my $opt_maxlines=0; # Stop at five million lines 
+my $opt_maxlines=0; # Stop at five million lines
 my $opt_maxkeys=50000;
 my $opt_regex = 0;
 my $opt_case  = 0;
@@ -34,10 +34,10 @@ my $opt_help = 0;
 my $opt_version = 0;
 my $opt_hits=1; # Show hits per second
 my $opt_clear=0; #Don't clean screen
-my $opt_relative=0; 
+my $opt_relative=0;
 
 my $result = GetOptions(
-"t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
+    "t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
 "m|maxtime=i"   => \$opt_maxtime,    # when to stop
 "maxlines=i"    => \$opt_maxlines,   # when to stop
 "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
@@ -51,9 +51,9 @@ my $result = GetOptions(
 "r|relative!"   => \$opt_relative,   # show relative percentages for hits
 "k|keysize=i" => \$opt_keysize,  # What delimiter to use
 "hits!"       => \$opt_hits,       # show hits/s
-"h|help"        => \$opt_help,       # Print help 
+"h|help"        => \$opt_help,       # Print help
 "v|version"     => \$opt_version     # Print version
-);                                      
+);
 
 
 =head1 SYNOPSIS
@@ -90,7 +90,7 @@ if ($opt_help) {
 }
 
 if ($opt_version) {
-    print "$version\n"; 
+    print "$version\n";
     exit(0);
 }
 
@@ -131,6 +131,17 @@ while (<STDIN>) {
     }
     my $line = $_;
     chomp $line;            # remove trailing newlines
+    if ($opt_field) {    # which field to use
+        my @fields    = split(",",$opt_field);
+        my @fieldlist = split(/$opt_delimiter/,$line);
+        my $object;
+        for my $field (@fields) {
+            $object .= "$fieldlist[($field-1)] ";
+        }
+        chop($object);
+        $line=$object;
+    }
+
     if ($opt_not) {
         if ($line =~ m/$opt_not/) {
             next;
@@ -160,19 +171,7 @@ while (<STDIN>) {
     }
     if ( !@ARGV ) {    # we didn't send regexp, count every line
         $hitcount++;
-        if ($opt_field) {    # which field to use
-            my @fields    = split(",",$opt_field);
-            my @fieldlist = split(/$opt_delimiter/,$line);
-            my $object;
-            for my $field (@fields) {
-                $object .= "$fieldlist[($field-1)] ";
-            }
-            chop($object);
-            $objects->{$object}++;
-        }
-        else {
-            $objects->{$line}++;
-        }
+        $objects->{$line}++;
     }
     $freqcount++;
     if ($opt_linefreq) {    # print out every <n> lines
@@ -265,7 +264,7 @@ sub printout {
     else {
         printf(
             "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
-            "<total>", 
+            "<total>",
             ($hitcount / $divider) * 100,
             $hitcount, $lines
         );
@@ -323,7 +322,7 @@ Group jpeg and jpg into one key
 $ tail -f /var/log/httpd/access.log | statpipe (jpe?g) png gif --not gift
 
 List top articles the last 10 seconds
-$ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 
+$ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20
 
 =back
 
