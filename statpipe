@@ -44,6 +44,7 @@ my $result = GetOptions(
 "l|limit=i"     => \$opt_limit,      # how many do we print
 "maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
 "n|not=s"       => \$opt_not,        # Not these
+"m|multi"       => \$opt_multi,      # Multimatch for each line
 "s|case"        => \$opt_case,       # key sensetive?
 "c|clear"       => \$opt_clear,      # clear and updatescreen?
 "f|field=s"     => \$opt_field,      # what field to use?
@@ -124,47 +125,89 @@ while (<STDIN>) {
         }
     }
     if ($opt_maxlines) {
-        if ($lines >= $opt_maxlines) {
+        if ($lines > $opt_maxlines) {
             print "Maxlines of $opt_maxlines reached.\n\n";
             &end_pipe;
         }
     }
     my $line = $_;
     chomp $line;            # remove trailing newlines
-    if ($opt_field) {    # which field to use
+
+    # if field is specified, use that instead of complete line
+    if ($opt_field) {
         my @fields    = split(",",$opt_field);
         my @fieldlist = split(/$opt_delimiter/,$line);
         my $object;
         for my $field (@fields) {
             $object .= "$fieldlist[($field-1)] ";
         }
+        # Delete trailing space
         chop($object);
         $line=$object;
     }
 
+
+    # skip lines that the user does not want
     if ($opt_not) {
-        if ($line =~ m/$opt_not/) {
-            next;
-        }
-    }
-    for my $reg (@ARGV) {
         if ($opt_case) {
-            if ( $line =~ m/$reg/ ) {
-                $hitcount++;
-                if ($1) {
-                    $objects->{$1}++;    # add match as key
-                } else {
-                    $objects->{$reg}++;  # add regex as key
-                }
+            if ($line =~ m/$opt_not/) {
+                next;
+            }
+        } else {
+            if ($line =~ m/$opt_not/i) {
+                next;
             }
         }
-        else {
-            if ( $line =~ m/$reg/i ) {   # caseinsensetive is default
-                $hitcount++;
-                if ($1) {
-                    $objects->{$1}++;    # add match as key
-                } else {
-                    $objects->{$reg}++;  # add regexp as key
+    }
+
+    # Magic starts here
+    for my $reg (@ARGV) { # for each regex
+        if ($opt_multi) {  # Using multi match?
+            my @linehits;
+            if ($opt_case) {
+                if (@linehits = $line =~ m/$reg/g ) {
+                    foreach my $linehit (@linehits) {
+                        $hitcount++;
+                        if ($1) {
+                            $objects->{$linehit}++;    # add match as key
+                        } else {
+                            $objects->{$reg}++;  # add regex as key
+                        }
+                    }
+                }
+            } else {
+                # Caseinsensetiv is the default
+                if ( @linehits = $line =~ m/$reg/ig ) {
+                    foreach my $linehit (@linehits) {
+                        $hitcount++;
+                        if ($1) {
+                            $objects->{$linehit}++;    # add match as key
+                        } else {
+                            $objects->{$reg}++;  # add regex as key
+                        }
+                    }
+                }
+            }
+        # Default is not using multi match
+        } else {
+            if ($opt_case) {
+                if (  $line =~ m/$reg/ ) {
+                    $hitcount++;
+                    if ($1) {
+                        $objects->{$1}++;    # add match as key
+                    } else {
+                        $objects->{$reg}++;  # add regex as key
+                    }
+                }
+            }
+            else {
+                if ( $line =~ m/$reg/i ) {   # caseinsensetive is default
+                    $hitcount++;
+                    if ($1) {
+                        $objects->{$1}++;    # add match as key
+                    } else {
+                        $objects->{$reg}++;  # add regexp as key
+                    }
                 }
             }
         }
