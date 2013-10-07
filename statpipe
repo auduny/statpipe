@@ -67,8 +67,8 @@ my $result = GetOptions(
 
 tail -f some.log  | statpipe [options] [regex] ... [regex]
 
-Regex is a perl regex, if the regex has a group '(.*)' the match will be used
-as a key instead of the regexp itself.
+Regex is a perl regex, if the regex has a group 'something\.(.*)' the
+match will be used as a key instead of the regexp itself.
 
 If no regex and no --field argument is given. It will be as '^(.*)$' was given.
 Meaning that it will count all unique lines in the file/pipe.
@@ -372,32 +372,37 @@ sub end_pipe {
 
 =head1 EXAMPLES
 
-=over 4
-
 Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
-$ tail -f /var/log/httpd/access.log | statpipe -f 7
+ $ tail -f /var/log/httpd/access.log | statpipe -f 7
 
 Seperate fields by " and show field two
-$ tail -f /var/log/httpd/access.log | statpipe -d \" -f 2
+ $ tail -f /var/log/httpd/access.log | statpipe -d \" -f 2
 
 Group jpeg and jpg differently
-$ tail -f /var/log/httpd/access.log | statpipe 'jpe?g' png gif
+ $ tail -f /var/log/httpd/access.log | statpipe 'jpe?g' png gif
 
 Group jpeg and jpg into one key
-$ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
+ $ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
 
 Count all words in a file
-$ cat file | statpipe --multi '(\w)'
+ $ cat file | statpipe --multi '(\w)'
 
 List top articles the last 10 seconds
-$ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10
---limit 20 --time=0
+ $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
 
-=back
+=HEAD1 BUGS
+
+Probably plenty.
 
 =HEAD1 TODO
 
 TODO: Merge ($1) ($2) etc.
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
+TODO: Read defaultsfile from .statpipe?
+
+=HEAD1 COPYRIGHT
+
+Audun Ytterdal <audun@ytterdal.net>
+http://github.com/auduny/statpipe/
 
 =cut
