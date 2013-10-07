@@ -54,8 +54,6 @@ Meaning that it will count all unique lines in the file/pipe.
     #Group jpeg and jpg differently
     $ tail -f /var/log/httpd/access.log | statpipe 'jpe?g' png gif
 
-
-
     #Group jpeg and jpg into one key
     $ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
 
@@ -64,6 +62,8 @@ Meaning that it will count all unique lines in the file/pipe.
 
     #List top 20 articles the last 10 seconds
     $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
+
+
 
 Probably plenty.
 
