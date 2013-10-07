@@ -65,11 +65,17 @@ Meaning that it will count all unique lines in the file/pipe.
 
 
 
+# BUGS
+
 Probably plenty.
+
+# TODO
 
 TODO: Merge ($1) ($2) etc.
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 TODO: Read defaultsfile from .statpipe?
+
+# COPYRIGHT
 
 Audun Ytterdal <audun@ytterdal.net>
 http://github.com/auduny/statpipe/

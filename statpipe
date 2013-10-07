@@ -391,17 +391,17 @@ sub end_pipe {
  $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
 
 
-=HEAD1 BUGS
+=head1 BUGS
 
 Probably plenty.
 
-=HEAD1 TODO
+=head1 TODO
 
 TODO: Merge ($1) ($2) etc.
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 TODO: Read defaultsfile from .statpipe?
 
-=HEAD1 COPYRIGHT
+=head1 COPYRIGHT
 
 Audun Ytterdal <audun@ytterdal.net>
 http://github.com/auduny/statpipe/
