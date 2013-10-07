@@ -1,37 +1,10 @@
-# Statpipe. The one and only cooltool
+# Statpipe
 
-I like my tool
-
+<some nice video here>
 
 # NAME
 
 statpipe - swiss knife statistics
-
-# SYNOPSIS
-
-tail -f some.log  | statpipe \[options\] \[regex\] ... \[regex\]
-
-    Options:
-     --timefreq|-t     Frequency of output in seconds (5)
-     --linefreq        Frequency of output in lines (none)
-     --maxtime         Time before closing the pipe in seconds (60)
-     --maxlines        Maximum numbers of lines to parse (unlimited)
-     --multi|m         Match multiple times per line (no)
-     --field|f         What field top use as key
-     --delimiter|d     What delimiter to use for fields (spaces)
-     --limit           Limit output of keys (30)
-     --maxkeys         Max number of unique keys (50000)
-     --not|n           Exclude lines with regex
-     --case|s          Be casesensetive
-     --clear           Clear screen between updates
-     --relative|r      Show relative percentages (no)
-     --(no)hits        Show hits per second (yes)
-     --help            Show help
-     --version         Show version
-
-If the regex has a grouping, the match will be used instead of the regex as a
-key
-
 
 # DESCRIPTION
 
@@ -41,38 +14,60 @@ other cool stuff.
 It's supposed to be a better way of doing something similar to
 tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
 
-# OPTIONS
+# SYNOPSIS
 
-    --timefreq|-t
-    This changes the updateinterval of the statistics. Default is 5 seconds.
-    Set it to 0 to turn it off.
+tail -f some.log  | statpipe \[options\] \[regex\] ... \[regex\]
 
-    --linefreq|-t
-    Same as above, just measured in number of lines parsed. Default is 0 (off)
+Regex is a perl regex, if the regex has a group 'something\\.(.\*)' the
+match will be used as a key instead of the regexp itself.
 
+If no regex and no --field argument is given. It will be as '^(.\*)$' was given.
+Meaning that it will count all unique lines in the file/pipe.
 
-
-
+    Options:
+     --field|f         What field top use as key (default all fields)
+     --delimiter|d     What delimiter to use for fields (spaces)
+     --timefreq|-t     Frequency of output in seconds (5)
+     --linefreq        Frequency of output in lines (none)
+     --maxtime         Time before closing the pipe in seconds (60)
+     --maxlines        Maximum numbers of lines to parse (unlimited)
+     --multi|m         Match multiple times per line (no)
+     --limit           Limit output of keys (30)
+     --maxkeys         Max number of unique keys (50000)
+     --not|n           Exclude lines with regex
+     --case|s          Be casesensetive
+     --clear           Clear screen between updates
+     --relative|r      Show relative percentages (no)
+     --keysize|k       Length of keys (output)
+     --(no)hits        Show hits per second (yes)
+     --help            Show help
+     --version         Show version
 
 # EXAMPLES
 
-    Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
-    $ tail -f /var/log/httpd/access.log | statpipe -f 7
+Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
+ $ tail -f /var/log/httpd/access.log | statpipe -f 7
 
-    Seperate fields by " and show field two
-    $ tail -f /var/log/httpd/access.log | statpipe -d \\" -f 2
+Seperate fields by " and show field two
+ $ tail -f /var/log/httpd/access.log | statpipe -d \\" -f 2
 
-    Group jpeg and jpg differently
-    $ tail -f /var/log/httpd/access.log | statpipe jpe?g png gif
+Group jpeg and jpg differently
+ $ tail -f /var/log/httpd/access.log | statpipe 'jpe?g' png gif
 
-    Group jpeg and jpg into one key
-    $ tail -f /var/log/httpd/access.log | statpipe (jpe?g) png gif --not gift
+Group jpeg and jpg into one key
+ $ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
 
-    List top articles the last 10 seconds
-    $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\\d+)' --maxtime=10 --limit 20
+Count all words in a file
+ $ cat file | statpipe --multi '(\\w)'
+
+List top 20 articles the last 10 seconds
+ $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\\d+)' --maxtime=10 --limit 20 --time=0
+
+Probably plenty.
 
 TODO: Merge ($1) ($2) etc.
-TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
+TODO: Read defaultsfile from .statpipe?
 
-
+Audun Ytterdal <audun@ytterdal.net>
+http://github.com/auduny/statpipe/

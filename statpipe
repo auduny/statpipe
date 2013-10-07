@@ -387,7 +387,7 @@ Group jpeg and jpg into one key
 Count all words in a file
  $ cat file | statpipe --multi '(\w)'
 
-List top articles the last 10 seconds
+List top 20 articles the last 10 seconds
  $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
 
 =HEAD1 BUGS
