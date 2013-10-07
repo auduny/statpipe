@@ -29,6 +29,10 @@ tail -f some.log  | statpipe \[options\] \[regex\] ... \[regex\]
      --help            Show help
      --version         Show version
 
+If the regex has a grouping, the match will be used instead of the regex as a
+key
+
+
 # DESCRIPTION
 
 statpipe is a excellent little tool to analyse logfiles, or any file

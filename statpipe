@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Copyright Audun Ytterdal <audun@ytterdal.net>
 # Licenced under GPL Version 2.
 
@@ -6,8 +6,15 @@
 
 statpipe - swiss knife statistics
 
-=cut
+=head1 DESCRIPTION
 
+statpipe is a excellent little tool to analyse logfiles, or any file
+for that matter, and produce percentage of hits, hits per second and
+other cool stuff.
+It's supposed to be a better way of doing something similar to
+tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
+
+=cut
 my $version="1.0";
 use Getopt::Long;
 #use Data::Dumper;
@@ -60,42 +67,30 @@ my $result = GetOptions(
 
 tail -f some.log  | statpipe [options] [regex] ... [regex]
 
+Regex is a perl regex, if the regex has a group '(.*)' the match will be used
+as a key instead of the regexp itself.
+
+If no regex and no --field argument is given. It will be as '^(.*)$' was given.
+Meaning that it will count all unique lines in the file/pipe.
+
  Options:
+  --field|f         What field top use as key (default all fields)
+  --delimiter|d     What delimiter to use for fields (spaces)
   --timefreq|-t     Frequency of output in seconds (5)
   --linefreq        Frequency of output in lines (none)
   --maxtime         Time before closing the pipe in seconds (60)
   --maxlines        Maximum numbers of lines to parse (unlimited)
   --multi|m         Match multiple times per line (no)
-  --field|f         What field top use as key
-  --delimiter|d     What delimiter to use for fields (spaces)
   --limit           Limit output of keys (30)
   --maxkeys         Max number of unique keys (50000)
   --not|n           Exclude lines with regex
   --case|s          Be casesensetive
   --clear           Clear screen between updates
   --relative|r      Show relative percentages (no)
+  --keysize|k       Length of keys (output)
   --(no)hits        Show hits per second (yes)
   --help            Show help
   --version         Show version
-
-=head1 DESCRIPTION
-
-statpipe is a excellent little tool to analyse logfiles, or any file
-for that matter, and produce percentage of hits, hits per second and
-other cool stuff.
-It's supposed to be a better way of doing something similar to
-tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
-
-=head1 OPTIONS
-
-  --timefreq|-t
-  This changes the updateinterval of the statistics. Default is 5 seconds.
-  Set it to 0 to turn it off.
-
-  --linefreq|-t
-  Same as above, just measured in number of lines parsed. Default is 0 (off)
-
-
 
 =cut
 
@@ -386,21 +381,23 @@ Seperate fields by " and show field two
 $ tail -f /var/log/httpd/access.log | statpipe -d \" -f 2
 
 Group jpeg and jpg differently
-$ tail -f /var/log/httpd/access.log | statpipe jpe?g png gif
+$ tail -f /var/log/httpd/access.log | statpipe 'jpe?g' png gif
 
 Group jpeg and jpg into one key
-$ tail -f /var/log/httpd/access.log | statpipe (jpe?g) png gif --not gift
+$ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
+
+Count all words in a file
+$ cat file | statpipe --multi '(\w)'
 
 List top articles the last 10 seconds
-$ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20
+$ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10
+--limit 20 --time=0
 
 =back
 
 =HEAD1 TODO
 
 TODO: Merge ($1) ($2) etc.
-TODO: Switch to caculate percentage of hits instead of total
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
-
 
 =cut
