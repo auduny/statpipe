@@ -26,13 +26,13 @@ $| = 1;
 $SIG{INT} = \&end_pipe;
 
 my $opt_linefreq; # Default none
-my $opt_timefreq=5; # Default every 5 second
-my $opt_maxtime=60; # Default 60 seconds
+my $opt_timefreq=1; # Default every 1 second
+my $opt_maxtime=0; # Default 60 seconds
 my $opt_maxlines=0; # Stop at five million lines
 my $opt_maxkeys=50000;
 my $opt_regex = 0;
 my $opt_case  = 0;
-my $opt_limit = 30;
+my $opt_limit = 0;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
 my $opt_keysize = 30;
@@ -76,12 +76,12 @@ Meaning that it will count all unique lines in the file/pipe.
  Options:
   --field|f         What field top use as key (default all fields)
   --delimiter|d     What delimiter to use for fields (spaces)
-  --timefreq|-t     Frequency of output in seconds (5)
+  --timefreq|-t     Frequency of output in seconds (1 second)
   --linefreq        Frequency of output in lines (none)
-  --maxtime         Time before closing the pipe in seconds (60)
+  --maxtime         Time before closing the pipe in seconds (unlimited)
   --maxlines        Maximum numbers of lines to parse (unlimited)
   --multi|m         Match multiple times per line (no)
-  --limit           Limit output of keys (30)
+  --limit           Limit output of keys (0)
   --maxkeys         Max number of unique keys (50000)
   --not|n           Exclude lines with regex
   --case|s          Be casesensetive
