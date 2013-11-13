@@ -96,8 +96,9 @@ Meaning that it will count all unique lines in the file/pipe.
 
 
 if ($opt_help) {
+    close STDIN;
     pod2usage("statpipe $version by Audun Ytterdal <audun\@ytterdal.net>\n");
-    exit(0);
+    exit;
 }
 
 if ($opt_version) {
