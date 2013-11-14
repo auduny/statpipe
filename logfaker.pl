@@ -5,7 +5,7 @@ use Getopt::Long;
 use Time::HiRes qw( time usleep);
 
 my $opt_bulk=1;
-my $opt_wait=1;
+my $opt_wait=0.0006;
 my $opt_unbuffered=1;
 # Unbuffered output
 $| = 1;
@@ -17,7 +17,6 @@ my $result = GetOptions(
 "u|unbuffered=i"   => \$opt_unbuffered);
 
 my $wait = $opt_wait * 1000000;
-print "slowness is $wait";
 
 open(my $fh, '<', $ARGV[0]) or die $!;
 
