@@ -1,7 +1,4 @@
 # Statpipe
-#fisk
-
-<some nice video here>
 
 # NAME
 
