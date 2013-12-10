@@ -321,7 +321,7 @@ sub printout {
     if ($opt_hits) {
         printf(
             "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
-            "<keys - " . length(keys %$hash) . ">",
+            "<unique keys: " . keys(%$objects) . ">",
             ($hitcount / $divider) * 100,
             $hitcount / $diff,
             $hitcount, $lines
@@ -330,7 +330,7 @@ sub printout {
     else {
         printf(
             "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
-            "<keys - " . length(keys %$hash) . ">",
+            "<unique keys: " . keys(%$objects) . ">",
             ($hitcount / $divider) * 100,
             $hitcount, $lines
         );
