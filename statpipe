@@ -59,6 +59,7 @@ my $result = GetOptions(
 "k|keysize=i" => \$opt_keysize,  # What delimiter to use
 "hits!"       => \$opt_hits,       # show hits/s
 "h|help"        => \$opt_help,       # Print help
+"title=s"     => \$opt_title,  # What title to use
 "v|version"     => \$opt_version     # Print version
 );
 
@@ -265,6 +266,9 @@ sub printout {
     if ($opt_clear) {       # if set, clear screen between prints
         my $clear = `tput clear`;
         print $clear;
+    }
+    if ($opt_title) {  # if set, print a header row
+        print "$opt_title\n";
     }
     # sort the hash values and print descending
     for my $reg ( sort { $objects->{$b} <=> $objects->{$a} } keys %$objects ) {
