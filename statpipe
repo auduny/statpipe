@@ -17,6 +17,7 @@ tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
 =cut
 my $version="1.0";
 use Getopt::Long;
+Getopt::Long::Configure("gnu_getopt");
 #use Data::Dumper;
 use Time::HiRes qw( time );
 use Pod::Usage;
