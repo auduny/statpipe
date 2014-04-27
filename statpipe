@@ -9,10 +9,10 @@ statpipe - swiss knife statistics
 =head1 DESCRIPTION
 
 statpipe is a excellent little tool to analyse logfiles, or any file
-for that matter, and produce percentage of hits, hits per second and
-other cool stuff.
+for that matter, grep for stuff and produce percentage of hits, 
+hits per second and other cool stuff.
 It's supposed to be a better way of doing something similar to
-tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
+tail -f | awk | cut | sort | unique  -c |sort -g | whatever.
 
 =cut
 my $version="1.0";
@@ -28,19 +28,19 @@ $SIG{INT} = \&end_pipe;
 
 my $opt_linefreq; # Default none
 my $opt_timefreq=1; # Default every 1 second
-my $opt_maxtime=0; # Default 60 seconds
-my $opt_maxlines=0; # Stop at five million lines
-my $opt_maxkeys=50000;
+my $opt_maxtime=0; # Default forever
+my $opt_maxlines=0; # Default forever
+my $opt_maxkeys=50000; # Default 50000 unique keys before we stop
 my $opt_regex = 0;
 my $opt_case  = 0;
 my $opt_limit = 0;
 my $opt_field;
 my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
-my $opt_keysize = 30;
+my $opt_keysize = 30; # Default length of printed key
 my $opt_help = 0;
 my $opt_version = 0;
 my $opt_hits=1; # Show hits per second
-my $opt_clear=0; #Don't clean screen
+my $opt_clear=0; # Don't clean screen between updates
 my $opt_relative=0;
 
 my $result = GetOptions(
