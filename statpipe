@@ -64,6 +64,9 @@ my $result = GetOptions(
 "v|version"     => \$opt_version     # Print version
 );
 
+if (!$result) {
+    $opt_help=1;
+}
 
 =head1 SYNOPSIS
 
@@ -95,7 +98,6 @@ Meaning that it will count all unique lines in the file/pipe.
   --version         Show version
 
 =cut
-
 
 if ($opt_help) {
     close STDIN;
