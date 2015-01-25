@@ -45,23 +45,23 @@ my $opt_relative=0;
 
 my $result = GetOptions(
     "t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
-"linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
-"maxtime=i"   => \$opt_maxtime,    # when to stop
-"maxlines=i"    => \$opt_maxlines,   # when to stop
-"maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
-"l|limit=i"     => \$opt_limit,      # how many do we print
-"n|not=s"       => \$opt_not,        # Not these
-"m|multi"       => \$opt_multi,      # Multimatch for each line
-"s|case"        => \$opt_case,       # key sensetive?
-"c|clear"       => \$opt_clear,      # clear and updatescreen?
-"f|field=s"     => \$opt_field,      # what field to use?
-"d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
-"r|relative!"   => \$opt_relative,   # show relative percentages for hits
-"k|keysize=i" => \$opt_keysize,  # What delimiter to use
-"hits!"       => \$opt_hits,       # show hits/s
-"h|help"        => \$opt_help,       # Print help
-"title=s"     => \$opt_title,  # What title to use
-"v|version"     => \$opt_version     # Print version
+    "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
+    "maxtime=i"     => \$opt_maxtime,    # when to stop
+    "maxlines=i"    => \$opt_maxlines,   # when to stop
+    "maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
+    "l|limit=i"     => \$opt_limit,      # how many do we print
+    "n|not=s"       => \$opt_not,        # Not these
+    "m|multi"       => \$opt_multi,      # Multimatch for each line
+    "s|case"        => \$opt_case,       # key sensetive?
+    "c|clear"       => \$opt_clear,      # clear and updatescreen?
+    "f|field=s"     => \$opt_field,      # what field to use?
+    "d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
+    "r|relative!"   => \$opt_relative,   # show relative percentages for hits
+    "k|keysize=i"   => \$opt_keysize,    # What delimiter to use
+    "hits!"         => \$opt_hits,       # show hits/s
+    "h|help"        => \$opt_help,       # Print help
+    "title=s"       => \$opt_title,      # What title to use
+    "v|version"     => \$opt_version     # Print version
 );
 
 if (!$result) {
@@ -210,7 +210,7 @@ while (<STDIN>) {
                     }
                 }
             }
-        # Default is not using multi match
+            # Default is not using multi match
         } else {
             if ($opt_case) {
                 if (  $line =~ m/$reg/ ) {
@@ -266,7 +266,7 @@ sub printout {
     my $limit  = 0;
     my $hitlimit;
     my $limitedhits = 0;
-    my $divider=0;
+    my $divider=1;
     if ($opt_clear) {       # if set, clear screen between prints
         my $clear = `tput clear`;
         print $clear;
