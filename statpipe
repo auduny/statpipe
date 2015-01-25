@@ -17,6 +17,7 @@ tail -f | awk | cut | sort | unique  -c |sort -g | whatever.
 =cut
 my $version="1.0";
 use Getopt::Long;
+#use gnu version of options
 Getopt::Long::Configure("gnu_getopt");
 #use Data::Dumper;
 use Time::HiRes qw( time );
@@ -26,21 +27,20 @@ $| = 1;
 # Catch Ctrl-C and friends
 $SIG{INT} = \&end_pipe;
 
-my $opt_linefreq; # Default none
-my $opt_timefreq=1; # Default every 1 second
-my $opt_maxtime=0; # Default forever
-my $opt_maxlines=0; # Default forever
-my $opt_maxkeys=50000; # Default 50000 unique keys before we stop
-my $opt_regex = 0;
-my $opt_case  = 0;
-my $opt_limit = 0;
-my $opt_field;
-my $opt_delimiter = '\s+'; #Default delimiter is one or more spaces
-my $opt_keysize = 30; # Default length of printed key
-my $opt_help = 0;
-my $opt_version = 0;
-my $opt_hits=1; # Show hits per second
-my $opt_clear=0; # Don't clean screen between updates
+my $opt_linefreq  = 0;     # Default none
+my $opt_timefreq  = 1;     # Default every 1 second
+my $opt_maxtime   = 0;     # Default forever
+my $opt_maxlines  = 0;     # Default forever
+my $opt_maxkeys   = 50000; # Default 50000 unique keys before we stop
+my $opt_case      = 0;     # Default case insensetive
+my $opt_limit     = 0;     # Default output all keys 
+my $opt_field;    = 0;     # Don't split fields by default
+my $opt_delimiter = '\s+'; # Default delimiter is one or more spaces
+my $opt_keysize   = 30;    # Default length of printed key
+my $opt_help      = 0;
+my $opt_version   = 0;
+my $opt_hits      = 1;     # Show hits per second
+my $opt_clear     = 0;     # Don't clean screen between updates
 my $opt_relative=0;
 
 my $result = GetOptions(
