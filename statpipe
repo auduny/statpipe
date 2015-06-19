@@ -409,6 +409,8 @@ TODO: Merge ($1) ($2) etc.
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 TODO: Read defaultsfile from .statpipe?
 TODO: Rare, reverse list
+TODO: Threads (use threads) for output
+TODO: Freqreset. REset numbers every X secons
 
 =head1 COPYRIGHT
 
