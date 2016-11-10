@@ -8,7 +8,7 @@ statpipe - swiss knife statistics
 
 statpipe is a excellent little tool to analyse logfiles, or any file
 for that matter, and produce percentage of hits, hits per second and
-other cool stuff.
+other cool stuff in the terminal
 It's supposed to be a better way of doing something similar to
 tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
 
