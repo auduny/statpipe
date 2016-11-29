@@ -411,7 +411,7 @@ TODO: Read defaultsfile from .statpipe?
 TODO: Rare, reverse list
 TODO: Threads (use threads) for output
 TODO: Freqreset. REset numbers every X secons
-TODO: Scriptfilter on output
+TODO: Scriptfilter on output (geoip etc)
 
 =head1 COPYRIGHT
 
