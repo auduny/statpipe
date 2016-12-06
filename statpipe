@@ -27,19 +27,23 @@ $| = 1;
 # Catch Ctrl-C and friends
 $SIG{INT} = \&end_pipe;
 
+
 my $opt_linefreq  = 0;     # Default none
 my $opt_timefreq  = 1;     # Default every 1 second
 my $opt_maxtime   = 0;     # Default forever
 my $opt_maxlines  = 0;     # Default forever
 my $opt_maxkeys   = 50000; # Default 50000 unique keys before we stop
 my $opt_case      = 0;     # Default case insensetive
-my $opt_limit     = 0;     # Default output all keys 
+my $opt_limit     = 0;     # Default output all keys
+my $opt_not       = 0;     # Default no not's
+my $opt_multi     = 0;     # Default only read once per line
 my $opt_field     = 0;     # Don't split fields by default
 my $opt_delimiter = '\s+'; # Default delimiter is one or more spaces
 my $opt_keysize   = 30;    # Default length of printed key
 my $opt_help      = 0;
 my $opt_version   = 0;
 my $opt_hits      = 1;     # Show hits per second
+my $opt_title     = 0;     # What title to use
 my $opt_clear     = 0;     # Don't clean screen between updates
 my $opt_relative=0;
 
@@ -94,6 +98,7 @@ Meaning that it will count all unique lines in the file/pipe.
   --relative|r      Show relative percentages (no)
   --keysize|k       Length of keys (output)
   --(no)hits        Show hits per second (yes)
+  --title           Optional title
   --help            Show help
   --version         Show version
 
