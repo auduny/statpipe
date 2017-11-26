@@ -135,8 +135,9 @@ while (<STDIN>) {
     $now = time();
     $lines++;
     if ($opt_maxkeys) {
-        $keys = keys %$objects;
-        if ($keys > $opt_maxkeys) {
+        $keys = scalar (keys %$objects);
+
+        if ($keys >= $opt_maxkeys) {
             print "Maxkeys ($opt_maxkeys) reached\n";
             &end_pipe;
         }
@@ -333,7 +334,7 @@ sub printout {
     if ($opt_hits) {
         printf(
             "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
-            "<total keys: " . keys(%$objects) . ">",
+            "<total keys: " . scalar (keys(%$objects)) . ">",
             ($hitcount / $divider) * 100,
             $hitcount / $diff,
             $hitcount, $lines
@@ -342,7 +343,7 @@ sub printout {
     else {
         printf(
             "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
-            "<total keys: " . keys(%$objects) . ">",
+            "<total keys: " . scalar (keys(%$objects)) . ">",
             ($hitcount / $divider) * 100,
             $hitcount, $lines
         );

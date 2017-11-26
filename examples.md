@@ -1,6 +1,6 @@
 # EXAMPLES
 
-    #Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
+    # Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
     $ cat testfiles/access.log | statpipe -f 7
 
     # Most active ip's that are not 10.84.X.X
