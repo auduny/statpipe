@@ -2,29 +2,18 @@
 # Copyright Audun Ytterdal <audun@ytterdal.net>
 # Licenced under GPL Version 2.
 
-=head1 NAME
-
-statpipe - swiss knife statistics
-
-=head1 DESCRIPTION
-
-statpipe is a excellent little tool to analyse logfiles, or any file
-for that matter, grep for stuff and produce percentage of hits, 
-hits per second and other cool stuff.
-It's supposed to be a better way of doing something similar to
-tail -f | awk | cut | sort | unique  -c |sort -g | whatever.
-
-=cut
-my $version="1.0";
+my $version='1.0';
 use Getopt::Long;
 #use gnu version of options
-Getopt::Long::Configure("gnu_getopt");
+Getopt::Long::Configure('gnu_getopt');
 #use Data::Dumper;
 use Time::HiRes qw( time );
 use Pod::Usage;
+use Scalar::Util qw(looks_like_number);
 # Unbuffered output
 $| = 1;
-# Catch Ctrl-C and friends
+
+# Catch Ctrl-C and friend
 $SIG{INT} = \&end_pipe;
 
 
@@ -45,69 +34,50 @@ my $opt_version   = 0;
 my $opt_hits      = 1;     # Show hits per second
 my $opt_title     = 0;     # What title to use
 my $opt_clear     = 0;     # Don't clean screen between updates
-my $opt_relative=0;
+my $opt_relative  = 0;
+my @groups;
+my $groupmin=0;
+my $groupmax=0;
+
 
 my $result = GetOptions(
-    "t|timefreq=i"  => \$opt_timefreq,   # how often do we update in time
-    "linefreq=i"    => \$opt_linefreq,   # how often do we update in lines
-    "maxtime=i"     => \$opt_maxtime,    # when to stop
-    "maxlines=i"    => \$opt_maxlines,   # when to stop
-    "maxkeys=i"     => \$opt_maxkeys,    # maxkeys (default 5000)
-    "l|limit=i"     => \$opt_limit,      # how many do we print
-    "n|not=s"       => \$opt_not,        # Not these
-    "m|multi"       => \$opt_multi,      # Multimatch for each line
-    "s|case"        => \$opt_case,       # key sensetive?
-    "c|clear"       => \$opt_clear,      # clear and updatescreen?
-    "f|field=s"     => \$opt_field,      # what field to use?
-    "d|delimiter=s" => \$opt_delimiter,  # What delimiter to use
-    "r|relative!"   => \$opt_relative,   # show relative percentages for hits
-    "k|keysize=i"   => \$opt_keysize,    # What delimiter to use
-    "hits!"         => \$opt_hits,       # show hits/s
-    "h|help"        => \$opt_help,       # Print help
-    "title=s"       => \$opt_title,      # What title to use
-    "v|version"     => \$opt_version     # Print version
+    't|timefreq=i'  => \$opt_timefreq,   # how often do we update in time
+    'linefreq=i'    => \$opt_linefreq,   # how often do we update in lines
+    'maxtime=i'     => \$opt_maxtime,    # when to stop
+    'maxlines=i'    => \$opt_maxlines,   # when to stop
+    'maxkeys=i'     => \$opt_maxkeys,    # maxkeys (default 5000)
+    'l|limit=i'     => \$opt_limit,      # how many do we print
+    'n|not=s'       => \$opt_not,        # Not these
+    'm|multi'       => \$opt_multi,      # Multimatch for each line
+    'i|case'        => \$opt_case,       # key sensetive?
+    'g|group=s'     => \$opt_group,      # Group keys
+    'c|clear'       => \$opt_clear,      # clear and updatescreen?
+    'f|field=s'     => \$opt_field,      # what field to use?
+    'd|delimiter=s' => \$opt_delimiter,  # What delimiter to use
+    'r|relative!'   => \$opt_relative,   # show relative percentages for hits
+    'k|keysize=i'   => \$opt_keysize,    # What delimiter to use
+    'hits!'         => \$opt_hits,       # show hits/s
+    'h|help'        => \$opt_help,       # Print help
+    'title=s'       => \$opt_title,      # What title to use
+    'v|version'     => \$opt_version     # Print version
 );
 
 if (!$result) {
     $opt_help=1;
 }
 
-=head1 SYNOPSIS
 
-tail -f some.log  | statpipe [options] [regex] ... [regex]
-
-Regex is a perl regex, if the regex has a group 'something\.(.*)' the
-match will be used as a key instead of the regexp itself.
-
-If no regex and no --field argument is given. It will be as '^(.*)$' was given.
-Meaning that it will count all unique lines in the file/pipe.
-
- Options:
-  --field|f         What field top use as key (default all fields)
-  --delimiter|d     What delimiter to use for fields (spaces)
-  --timefreq|-t     Frequency of output in seconds (1 second)
-  --linefreq        Frequency of output in lines (none)
-  --maxtime         Time before closing the pipe in seconds (unlimited)
-  --maxlines        Maximum numbers of lines to parse (unlimited)
-  --multi|m         Match multiple times per line (no)
-  --limit           Limit output of keys (0)
-  --maxkeys         Max number of unique keys (50000)
-  --not|n           Exclude lines with regex
-  --case|s          Be casesensetive
-  --clear           Clear screen between updates
-  --relative|r      Show relative percentages (no)
-  --keysize|k       Length of keys (output)
-  --(no)hits        Show hits per second (yes)
-  --title           Optional title
-  --help            Show help
-  --version         Show version
-
-=cut
 
 if ($opt_help) {
     close STDIN;
     pod2usage("statpipe $version by Audun Ytterdal <audun\@ytterdal.net>\n");
     exit;
+}
+
+
+
+if ($opt_group) { 
+    @groups = split(",",$opt_group);
 }
 
 if ($opt_version) {
@@ -242,10 +212,34 @@ while (<STDIN>) {
             }
         }
     }
-    if ( !@ARGV ) {    # we didn't send regexp, count every line
-        $hitcount++;
-        $objects->{$line}++;
-        $hitflag=1;
+
+    if ( !@ARGV ) {
+        if ($opt_group) {
+            # We want to group the actual numeral values in groups
+            $grouplenght = length(@groups);
+            if (looks_like_number($line)) {
+                my $match=0;
+                for my $group (@groups) {
+                    if ($line < $group) {
+                        my $groupname = "< $group";
+                        $objects->{$groupname}++;
+                        $match=1;
+                        last;
+                    }
+                }
+                if (!$match) {
+                    my $groupname = "> $groups[$grouplength-1]";
+                    $objects->{$groupname}++;
+                }
+            } else {
+                $objects->{"not numeric"}++
+            }
+        } else {
+            # we didn't send regexp, count every line
+            $hitcount++;
+            $objects->{$line}++;
+            $hitflag=1;
+        }
     }
     $freqcount++;
     if ($opt_linefreq) {    # print out every <n> lines
@@ -343,7 +337,7 @@ sub printout {
     else {
         printf(
             "%-".$opt_keysize."s: (%.1f%%) (%d/%d)\n",
-            "<total keys: " . scalar (keys(%$objects)) . ">",
+            "<total keys: " . scalar (keys(%$objects)) . '>',
             ($hitcount / $divider) * 100,
             $hitcount, $lines
         );
@@ -352,7 +346,7 @@ sub printout {
     if ($restcount) {
         if ($opt_hits) {
             printf(
-                "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
+                '%-'.$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
                 "<rest>",
                 ( $restcount / $divider ) * 100,
                 $restcount / $diff,
@@ -383,6 +377,49 @@ sub end_pipe {
         $lines, $diff, $lines / $diff );
     exit;
 }
+
+=head1 NAME
+
+statpipe - swiss knife statistics
+
+=head1 DESCRIPTION
+
+statpipe is a excellent little tool to analyse logfiles, or any file
+for that matter, grep for stuff and produce percentage of hits, 
+hits per second and other cool stuff.
+It's supposed to be a better way of doing something similar to
+tail -f | awk | cut | sort | unique  -c |sort -g | whatever.
+
+=head1 SYNOPSIS
+
+tail -f some.log  | statpipe [options] [regex] ... [regex]
+
+Regex is a perl regex, if the regex has a group 'something\.(.*)' the
+match will be used as a key instead of the regexp itself.
+
+If no regex and no --field argument is given. It will be as '^(.*)$' was given.
+Meaning that it will count all unique lines in the file/pipe.
+
+ Options:
+  --field|f         What field top use as key (default all fields)
+  --delimiter|d     What delimiter to use for fields (spaces)
+  --timefreq|-t     Frequency of output in seconds (1 second)
+  --linefreq        Frequency of output in lines (none)
+  --maxtime         Time before closing the pipe in seconds (unlimited)
+  --maxlines        Maximum numbers of lines to parse (unlimited)
+  --multi|m         Match multiple times per line (no)
+  --limit           Limit output of keys (0)
+  --maxkeys         Max number of unique keys (50000)
+  --not|n           Exclude lines with regex
+  --case|s          Be casesensetive
+  --clear           Clear screen between updates
+  --relative|r      Show relative percentages (no)
+  --keysize|k       Length of keys (output)
+  --(no)hits        Show hits per second (yes)
+  --title           Optional title
+  --help            Show help
+  --version         Show version
+
 
 =head1 EXAMPLES
 
