@@ -218,6 +218,9 @@ while (<STDIN>) {
             # We want to group the actual numeral values in groups
             $grouplenght = length(@groups);
             if (looks_like_number($line)) {
+                if ($line > $groupmax) {
+                    $groupmax=$line;
+                }
                 my $match=0;
                 for my $group (@groups) {
                     if ($line < $group) {
@@ -361,6 +364,10 @@ sub printout {
             );
         }
     }
+    if ($opt_group) {
+        print "Highest numeric value: $groupmax\n"
+    }
+
     print "\n";
 }
 
