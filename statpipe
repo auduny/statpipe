@@ -57,6 +57,7 @@ my $result = GetOptions(
     'r|relative!'   => \$opt_relative,   # show relative percentages for hits
     'k|keysize=i'   => \$opt_keysize,    # What delimiter to use
     'hits!'         => \$opt_hits,       # show hits/s
+    'maxlength'     => \$opt_maxlenght,
     'h|help'        => \$opt_help,       # Print help
     'title=s'       => \$opt_title,      # What title to use
     'v|version'     => \$opt_version     # Print version
@@ -176,9 +177,18 @@ while (<STDIN>) {
                 # Caseinsensetiv is the default
                 if ( @linehits = $line =~ m/$reg/ig ) {
                     $hitflag=1;
+                    print("Usj: @linehits\n");
                     foreach my $linehit (@linehits) {
                         $hitcount++;
-                        if ($1) {
+                        if ($2) {
+                            print("Snask: '$1' '$2' og '$linehit'\n");
+                            if ($opt_maxlenght) {
+                                if (length($2) > $objects->{$linehit}) {
+                                    $objects->{$linehit} = length($2);
+                                }
+                            }
+                        }
+                        elsif ($1) {
                             $objects->{$linehit}++;    # add match as key
                         } else {
                             $objects->{$reg}++;  # add regex as key
@@ -203,7 +213,16 @@ while (<STDIN>) {
                 if ( $line =~ m/$reg/i ) {   # caseinsensetive is default
                     $hitcount++;
                     $hitflag=1;
-                    if ($1) {
+                    if ($2) {
+                        if ($opt_maxlenght) {
+                            if (length($2) > $objects->{$1}) {
+                                $objects->{$1} = length($2);
+                            }
+                        } else {
+                            $objects->{"$1-$2"}++;
+                        }
+                    }
+                    elsif ($1) {
                         $objects->{$1}++;    # add match as key
                     } else {
                         $objects->{$reg}++;  # add regexp as key
@@ -285,21 +304,28 @@ sub printout {
             $divider=$lines;
         }
         if ( !$hitlimit ) {    # only print untill we hit the limit
-            if ($opt_hits) {
+            if ($opt_maxlenght) {
                 printf(
-                    "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
-                    $reg,
-                    ( $objects->{$reg} / $divider ) * 100,
-                    $objects->{$reg} / $diff,
-                    $objects->{$reg}, $lines
+                    "%-".$opt_keysize."s: %d\n",
+                    $reg, $objects->{$reg}
                 );
-            }
-            else {
-                printf(
-                    "%-".$opt_keysize."s: (%-4.1f%%) (%d/%d)\n",
-                    $reg, ( $objects->{$reg} / $divider ) * 100,
-                    $objects->{$reg}, $lines
-                );
+            } else {
+                if ($opt_hits) {
+                    printf(
+                      "%-".$opt_keysize."s: (%-4.1f%%) (%.1f h/s) (%d/%d)\n",
+                      $reg,
+                        ( $objects->{$reg} / $divider ) * 100,
+                        $objects->{$reg} / $diff,
+                        $objects->{$reg}, $lines
+                    );
+                }
+                else {
+                    printf(
+                        "%-".$opt_keysize."s: (%-4.1f%%) (%d/%d)\n",
+                        $reg, ( $objects->{$reg} / $divider ) * 100,
+                        $objects->{$reg}, $lines
+                    );
+                }
             }
         }
         else {
