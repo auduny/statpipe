@@ -34,10 +34,12 @@ my $opt_version   = 0;
 my $opt_hits      = 1;     # Show hits per second
 my $opt_title     = 0;     # What title to use
 my $opt_clear     = 0;     # Don't clean screen between updates
-my $opt_relative  = 0;
+my $opt_relative  = 0;     # Relative percentage
+my $opt_group     = 0;     # Grouping
 my @groups;
 my $groupmin=0;
 my $groupmax=0;
+my $grouplength=0;
 
 
 my $result = GetOptions(
@@ -216,7 +218,7 @@ while (<STDIN>) {
     if ( !@ARGV ) {
         if ($opt_group) {
             # We want to group the actual numeral values in groups
-            $grouplenght = length(@groups);
+            $grouplength = scalar @groups;
             if (looks_like_number($line)) {
                 if ($line > $groupmax) {
                     $groupmax=$line;
@@ -359,8 +361,8 @@ sub printout {
         else {
             printf(
                 "%-".$opt_keysize."s: (%-4.1f%%) (%d/%d)\n",
-                "<rest>", ( $rest / $divider ) * 100,
-                $rest, $lines
+                "<rest>", ( $restcount / $divider ) * 100,
+                $restcount, $lines
             );
         }
     }
