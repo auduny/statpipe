@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: statpipe
+  description: |
+    Poor Mans splunk
+  links:
+    - title: Website
+      url: http://audun.ytterdal.net
+  annotations:
+    github.com/statpipe: auduny/statpipe
+
+spec:
+  type: system
+  owner: auduny
+  lifecycle: production
