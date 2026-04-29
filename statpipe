@@ -281,7 +281,7 @@ sub printout {
     }
     # sort the hash values and print descending
     for my $reg ( sort { $objects->{$b} <=> $objects->{$a} } keys %$objects ) {
-        if ($opt_relative) {
+        if ($opt_relative && $hitcount) {
             $divider=$hitcount;
         } else {
             $divider=$lines;
