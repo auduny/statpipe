@@ -247,8 +247,8 @@ while (<STDIN>) {
         }
     }
     $freqcount++;
-    if ($opt_linefreq) {    # print out every <n> lines
-        printout( $objects, $lines, $starttime ) if ( $freqcount >= $opt_linefreq );
+    if ($opt_linefreq && $freqcount >= $opt_linefreq) {    # print out every <n> lines
+        printout( $objects, $lines, $starttime );
         $freqcount = 0;
     }
     if ($opt_timefreq) {    # print out every <n> seconds

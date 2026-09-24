@@ -164,13 +164,13 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
 }
 
 # ---------------------------------------------------------------------------
-# --linefreq  (BUG: freqcount reset is unconditional)
+# --linefreq
 # ---------------------------------------------------------------------------
 
 @test "--linefreq prints output at the right frequency" {
-    result=$(printf '%s\n' {1..10} | perl "$SCRIPT" --nohits --linefreq 5 --timefreq 0)
-    # Should have produced at least one intermediate printout
-    [ -n "$result" ]
+    result=$(seq 1 10 | perl "$SCRIPT" --nohits --linefreq 5 --timefreq 0)
+    # 10 lines at linefreq 5: printouts at line 5 and 10, plus the final one
+    [ "$(grep -c '<total keys' <<< "$result")" -eq 3 ]
 }
 
 # ---------------------------------------------------------------------------
