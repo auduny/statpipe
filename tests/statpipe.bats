@@ -104,6 +104,7 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
     run bash -c "printf 'a\nb\nc\nd\ne\n' | perl '$SCRIPT' --nohits --maxlines 2"
     [ "$status" -eq 0 ]
     [[ "$output" == *"Maxlines"* ]]
+    [[ "$output" == *"Parsed 2 lines"* ]]
 }
 
 # ---------------------------------------------------------------------------

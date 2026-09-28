@@ -105,7 +105,6 @@ my $now = time();
 while (<STDIN>) {
     $hitflag=0;
     $now = time();
-    $lines++;
     if ($opt_maxkeys) {
         $keys = scalar (keys %$objects);
 
@@ -121,11 +120,12 @@ while (<STDIN>) {
         }
     }
     if ($opt_maxlines) {
-        if ($lines > $opt_maxlines) {
+        if ($lines >= $opt_maxlines) {
             print "Maxlines of $opt_maxlines reached.\n\n";
             &end_pipe;
         }
     }
+    $lines++;
     my $line = $_;
     chomp $line;            # remove trailing newlines
 
