@@ -46,6 +46,16 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
     [[ "$result" == *"(3/"* ]]
 }
 
+@test "--multi handles alternation groups without phantom keys" {
+    result=$(printf 'a\nb\n' | perl "$SCRIPT" --nohits --multi '(a)|(b)')
+    [[ "$result" == *"a"*"1/"* ]]
+    [[ "$result" == *"b"*"1/"* ]]
+    # the regex itself must not become a key for unmatched branches
+    [[ "$result" != *"(a)|(b)"* ]]
+    # totals must not exceed the number of matches
+    [[ "$result" == *"(2/2)"* ]]
+}
+
 # ---------------------------------------------------------------------------
 # --case (case-sensitive)
 # ---------------------------------------------------------------------------

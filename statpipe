@@ -165,9 +165,11 @@ while (<STDIN>) {
             if ($opt_case) {
                 if (@linehits = $line =~ m/$reg/g ) {
                     $hitflag=1;
+                    my $has_caps = $#+ > 0;    # does the regex have capture groups?
                     foreach my $linehit (@linehits) {
+                        next if $has_caps && !defined $linehit;  # group did not participate
                         $hitcount++;
-                        if ($1) {
+                        if ($has_caps) {
                             $objects->{$linehit}++;    # add match as key
                         } else {
                             $objects->{$reg}++;  # add regex as key
@@ -178,9 +180,11 @@ while (<STDIN>) {
                 # Caseinsensetiv is the default
                 if ( @linehits = $line =~ m/$reg/ig ) {
                     $hitflag=1;
+                    my $has_caps = $#+ > 0;    # does the regex have capture groups?
                     foreach my $linehit (@linehits) {
+                        next if $has_caps && !defined $linehit;  # group did not participate
                         $hitcount++;
-                        if ($1) {
+                        if ($has_caps) {
                             $objects->{$linehit}++;    # add match as key
                         } else {
                             $objects->{$reg}++;  # add regex as key
