@@ -7,10 +7,10 @@ statpipe - swiss knife statistics
 # DESCRIPTION
 
 statpipe is a excellent little tool to analyse logfiles, or any file
-for that matter, and produce percentage of hits, hits per second and
-other cool stuff in the terminal
+for that matter, grep for stuff and produce percentage of hits,
+hits per second and other cool stuff.
 It's supposed to be a better way of doing something similar to
-tail -f | awk | cut| sort | unique  -c |sort -g | whatever.
+tail -f | awk | cut | sort | unique  -c |sort -g | whatever.
 
 # SYNOPSIS
 
@@ -25,12 +25,12 @@ Meaning that it will count all unique lines in the file/pipe.
     Options:
      --field|f         What field top use as key (default all fields)
      --delimiter|d     What delimiter to use for fields (spaces)
-     --timefreq|-t     Frequency of output in seconds (5)
+     --timefreq|-t     Frequency of output in seconds (1 second)
      --linefreq        Frequency of output in lines (none)
-     --maxtime         Time before closing the pipe in seconds (60)
+     --maxtime         Time before closing the pipe in seconds (unlimited)
      --maxlines        Maximum numbers of lines to parse (unlimited)
      --multi|m         Match multiple times per line (no)
-     --limit           Limit output of keys (30)
+     --limit           Limit output of keys (0)
      --maxkeys         Max number of unique keys (50000)
      --not|n           Exclude lines with regex
      --group|g         Group numeric input into buckets (comma separated limits)
@@ -40,6 +40,7 @@ Meaning that it will count all unique lines in the file/pipe.
      --relative|r      Show relative percentages (no)
      --keysize|k       Length of keys (output)
      --(no)hits        Show hits per second (yes)
+     --title           Optional title
      --help            Show help
      --version         Show version
 
@@ -77,6 +78,11 @@ Probably plenty.
 TODO: Merge ($1) ($2) etc.
 TODO: Name change: PMS? (Poor mans Splunk) (Pipe measure system), statpipe
 TODO: Read defaultsfile from .statpipe?
+TODO: Rare, reverse list
+TODO: Threads (use threads) for output
+TODO: Freqreset. REset numbers every X secons
+TODO: Scriptfilter on output (geoip etc)
+TODO: Fields in the form of -f-1 or -f2,
 
 # COPYRIGHT
 
