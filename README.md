@@ -33,7 +33,7 @@ Meaning that it will count all unique lines in the file/pipe.
      --limit           Limit output of keys (30)
      --maxkeys         Max number of unique keys (50000)
      --not|n           Exclude lines with regex
-     --case|s          Be casesensetive
+     --case|i          Be casesensetive
      --clear           Clear screen between updates
      --relative|r      Show relative percentages (no)
      --keysize|k       Length of keys (output)
