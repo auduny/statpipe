@@ -3,6 +3,7 @@
 # Licenced under GPL Version 2.
 
 my $version='1.0';
+use strict;
 use Getopt::Long;
 #use gnu version of options
 Getopt::Long::Configure('gnu_getopt');
