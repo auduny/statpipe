@@ -223,6 +223,8 @@ while (<STDIN>) {
         if ($opt_group) {
             # We want to group the actual numeral values in groups
             $grouplength = scalar @groups;
+            $hitcount++;
+            $hitflag=1;
             if (looks_like_number($line)) {
                 if ($line > $groupmax) {
                     $groupmax=$line;

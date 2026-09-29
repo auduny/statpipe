@@ -143,6 +143,13 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
     [[ "$result" == *"not numeric"* ]]
 }
 
+@test "--group counts grouped lines as hits, not rest" {
+    result=$(printf '1\n3\n5\n' | perl "$SCRIPT" --nohits --group 2,4)
+    # all 3 lines classified: total is 3/3 and nothing falls into <rest>
+    [[ "$result" == *"(3/3)"* ]]
+    [[ "$result" != *"<rest>"* ]]
+}
+
 # ---------------------------------------------------------------------------
 # --relative  (BUG: divide-by-zero when hitcount is 0 with --group)
 # ---------------------------------------------------------------------------
