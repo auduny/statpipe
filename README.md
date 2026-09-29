@@ -1,5 +1,20 @@
 # Statpipe
 
+# INSTALL
+
+## Homebrew
+
+    brew tap auduny/statpipe https://github.com/auduny/statpipe
+    brew install auduny/statpipe/statpipe
+
+## Manual
+
+statpipe is a single perl script with no dependencies beyond perl's
+core modules. Copy it somewhere in your PATH:
+
+    curl -L -o /usr/local/bin/statpipe https://raw.githubusercontent.com/auduny/statpipe/master/statpipe
+    chmod +x /usr/local/bin/statpipe
+
 # NAME
 
 statpipe - swiss knife statistics
