@@ -83,6 +83,19 @@ if ($opt_group) {
     @groups = split(",",$opt_group);
 }
 
+# Precompile the regexes once; keep the original string for use as key.
+# Case sensitivity is baked into the qr// object.
+my @regexes;
+for my $reg (@ARGV) {
+    my $qr = $opt_case ? qr/$reg/ : qr/$reg/i;
+    push @regexes, [ $reg, $qr ];
+}
+my $not_qr;
+if ($opt_not) {
+    $not_qr = $opt_case ? qr/$opt_not/ : qr/$opt_not/i;
+}
+my $delimiter_qr = qr/$opt_delimiter/;
+
 if ($opt_version) {
     print "$version\n";
     exit(0);
@@ -133,7 +146,7 @@ while (<STDIN>) {
     # if field is specified, use that instead of complete line
     if ($opt_field) {
         my @fields    = split(",",$opt_field);
-        my @fieldlist = split(/$opt_delimiter/,$line);
+        my @fieldlist = split($delimiter_qr,$line);
         my $object;
         for my $field (@fields) {
             $object .= "$fieldlist[($field-1)] ";
@@ -145,82 +158,43 @@ while (<STDIN>) {
 
 
     # skip lines that the user does not want
-    if ($opt_not) {
-        if ($opt_case) {
-            if ($line =~ m/$opt_not/) {
-                $restcount++;
-                next;
-            }
-        } else {
-            if ($line =~ m/$opt_not/i) {
-                $restcount++;
-                next;
-            }
-        }
+    if ($not_qr && $line =~ $not_qr) {
+        $restcount++;
+        next;
     }
 
     # Magic starts here
-    for my $reg (@ARGV) { # for each regex
+    for my $regex (@regexes) { # for each regex
+        my ( $name, $qr ) = @$regex;
         if ($opt_multi) {  # Using multi match?
-            my @linehits;
-            if ($opt_case) {
-                if (@linehits = $line =~ m/$reg/g ) {
-                    $hitflag=1;
-                    my $has_caps = $#+ > 0;    # does the regex have capture groups?
-                    foreach my $linehit (@linehits) {
-                        next if $has_caps && !defined $linehit;  # group did not participate
-                        $hitcount++;
-                        if ($has_caps) {
-                            $objects->{$linehit}++;    # add match as key
-                        } else {
-                            $objects->{$reg}++;  # add regex as key
-                        }
-                    }
-                }
-            } else {
-                # Case insensitive is the default
-                if ( @linehits = $line =~ m/$reg/ig ) {
-                    $hitflag=1;
-                    my $has_caps = $#+ > 0;    # does the regex have capture groups?
-                    foreach my $linehit (@linehits) {
-                        next if $has_caps && !defined $linehit;  # group did not participate
-                        $hitcount++;
-                        if ($has_caps) {
-                            $objects->{$linehit}++;    # add match as key
-                        } else {
-                            $objects->{$reg}++;  # add regex as key
-                        }
+            if ( my @linehits = $line =~ /$qr/g ) {
+                $hitflag=1;
+                my $has_caps = $#+ > 0;    # does the regex have capture groups?
+                foreach my $linehit (@linehits) {
+                    next if $has_caps && !defined $linehit;  # group did not participate
+                    $hitcount++;
+                    if ($has_caps) {
+                        $objects->{$linehit}++;    # add match as key
+                    } else {
+                        $objects->{$name}++;   # add regex as key
                     }
                 }
             }
             # Default is not using multi match
         } else {
-            if ($opt_case) {
-                if (  $line =~ m/$reg/ ) {
-                    $hitcount++;
-                    $hitflag=1;
-                    if ($1) {
-                        $objects->{$1}++;    # add match as key
-                    } else {
-                        $objects->{$reg}++;  # add regex as key
-                    }
-                }
-            }
-            else {
-                if ( $line =~ m/$reg/i ) {   # case insensitive is default
-                    $hitcount++;
-                    $hitflag=1;
-                    if ($1) {
-                        $objects->{$1}++;    # add match as key
-                    } else {
-                        $objects->{$reg}++;  # add regexp as key
-                    }
+            if ( $line =~ /$qr/ ) {
+                $hitcount++;
+                $hitflag=1;
+                if ($1) {
+                    $objects->{$1}++;    # add match as key
+                } else {
+                    $objects->{$name}++; # add regex as key
                 }
             }
         }
     }
 
-    if ( !@ARGV ) {
+    if ( !@regexes ) {
         if ($opt_group) {
             # We want to group the actual numeral values in groups
             $grouplength = scalar @groups;
