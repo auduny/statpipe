@@ -151,7 +151,7 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
 }
 
 # ---------------------------------------------------------------------------
-# --relative  (BUG: divide-by-zero when hitcount is 0 with --group)
+# --relative
 # ---------------------------------------------------------------------------
 
 @test "--relative does not crash when there are hits" {
@@ -159,8 +159,8 @@ strip_ansi() { sed 's/\x1b\[[0-9;]*m//g'; }
     [ "$status" -eq 0 ]
 }
 
-@test "--relative with --group does not divide by zero (known bug)" {
-    # This reproduces the confirmed crash: Illegal division by zero at line 296
+@test "--relative with --group does not divide by zero" {
+    # Regression test for a fixed crash: Illegal division by zero
     run bash -c "printf '1\n3\n5\n' | perl '$SCRIPT' --nohits --group 2,4 --relative"
     [ "$status" -eq 0 ]
 }
