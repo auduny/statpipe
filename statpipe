@@ -426,6 +426,8 @@ Meaning that it will count all unique lines in the file/pipe.
   --limit           Limit output of keys (0)
   --maxkeys         Max number of unique keys (50000)
   --not|n           Exclude lines with regex
+  --group|g         Group numeric input into buckets (comma separated limits)
+                    Only used when no regex is given
   --case|i          Be casesensetive
   --clear           Clear screen between updates
   --relative|r      Show relative percentages (no)
@@ -455,6 +457,9 @@ Meaning that it will count all unique lines in the file/pipe.
 
  #List top 20 articles the last 10 seconds
  $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
+
+ #Group numeric values into buckets, e.g. response times
+ $ cat response-times.log | statpipe --group 10,50,100,500
 
 
 =head1 BUGS
