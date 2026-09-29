@@ -164,31 +164,30 @@ while (<STDIN>) {
     }
 
     # Magic starts here
-    for my $regex (@regexes) { # for each regex
-        my ( $name, $qr ) = @$regex;
+    for my $regex (@regexes) { # for each regex; [0] = pattern string, [1] = qr//
         if ($opt_multi) {  # Using multi match?
-            if ( my @linehits = $line =~ /$qr/g ) {
+            if ( my @linehits = $line =~ /$regex->[1]/g ) {
                 $hitflag=1;
                 my $has_caps = $#+ > 0;    # does the regex have capture groups?
                 foreach my $linehit (@linehits) {
                     next if $has_caps && !defined $linehit;  # group did not participate
                     $hitcount++;
                     if ($has_caps) {
-                        $objects->{$linehit}++;    # add match as key
+                        $objects->{$linehit}++;      # add match as key
                     } else {
-                        $objects->{$name}++;   # add regex as key
+                        $objects->{$regex->[0]}++;   # add regex as key
                     }
                 }
             }
             # Default is not using multi match
         } else {
-            if ( $line =~ /$qr/ ) {
+            if ( $line =~ /$regex->[1]/ ) {
                 $hitcount++;
                 $hitflag=1;
                 if ($1) {
-                    $objects->{$1}++;    # add match as key
+                    $objects->{$1}++;          # add match as key
                 } else {
-                    $objects->{$name}++; # add regex as key
+                    $objects->{$regex->[0]}++; # add regex as key
                 }
             }
         }
