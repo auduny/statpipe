@@ -6,7 +6,7 @@ statpipe - swiss knife statistics
 
 # DESCRIPTION
 
-statpipe is a excellent little tool to analyse logfiles, or any file
+statpipe is an excellent little tool to analyse logfiles, or any file
 for that matter, grep for stuff and produce percentage of hits,
 hits per second and other cool stuff.
 It's supposed to be a better way of doing something similar to
@@ -23,7 +23,7 @@ If no regex and no --field argument is given. It will be as '^(.\*)$' was given.
 Meaning that it will count all unique lines in the file/pipe.
 
     Options:
-     --field|f         What field top use as key (default all fields)
+     --field|f         What field to use as key (default all fields)
      --delimiter|d     What delimiter to use for fields (spaces)
      --timefreq|-t     Frequency of output in seconds (1 second)
      --linefreq        Frequency of output in lines (none)
@@ -35,7 +35,7 @@ Meaning that it will count all unique lines in the file/pipe.
      --not|n           Exclude lines with regex
      --group|g         Group numeric input into buckets (comma separated limits)
                        Only used when no regex is given
-     --case|i          Be casesensetive
+     --case|i          Be case sensitive
      --clear           Clear screen between updates
      --relative|r      Show relative percentages (no)
      --keysize|k       Length of keys (output)
@@ -46,10 +46,10 @@ Meaning that it will count all unique lines in the file/pipe.
 
 # EXAMPLES
 
-    #Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
+    #Show the most visited urls in a logfile
     $ tail -f /var/log/httpd/access.log | statpipe -f 7
 
-    #Seperate fields by " and show field two
+    #Separate fields by " and show field two
     $ tail -f /var/log/httpd/access.log | statpipe -d \" -f 2
 
     #Group jpeg and jpg differently

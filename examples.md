@@ -1,12 +1,12 @@
 # EXAMPLES
 
-    # Show top 30 visited urls. Update it every 5 seconds for 60 seconds (default)
+    # Show the most visited urls in a logfile
     $ cat testfiles/access.log | statpipe -f 7
 
     # Most active ip's that are not 10.84.X.X
     $ varnishncsa |statpipe -f 7 --limit 15 --not 10.84 '^([^\?]+)\??'
 
-    # Seperate fields by " and show field two
+    # Separate fields by " and show field two
     $ tail -f /var/log/httpd/access.log | statpipe -d \" -f 2
 
     # Group jpeg and jpg differently
