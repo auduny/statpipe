@@ -13,7 +13,7 @@ $| = 1;
 
 
 my $result = GetOptions(
-"b|buld=i"  => \$opt_bulk,   # how often do we update in time
+"b|bulk=i"  => \$opt_bulk,   # how often do we update in time
 "s|sleep=f"    => \$opt_wait,   # how often do we update in lines
 "u|unbuffered=i"   => \$opt_unbuffered,
 "l|loop=i"	=> \$opt_loop);
