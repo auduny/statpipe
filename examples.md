@@ -15,8 +15,8 @@
     # Group jpeg and jpg into one key
     $ tail -f /var/log/httpd/access.log | statpipe '(jpe?g)' png gif --not gift
 
-    # Count all words in a file
-    $ cat file | statpipe --multi '(\w)'
+    # Count all letters in a file
+    $ cat testfiles/words.txt | statpipe --multi '(\w)'
 
     # List top 20 articles the last 10 seconds
     $ tail -f /var/log/httpd/access.log | statpipe 'artid=(\d+)' --maxtime=10 --limit 20 --time=0
