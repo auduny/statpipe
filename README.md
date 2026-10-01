@@ -84,6 +84,19 @@ TODO: Freqreset. REset numbers every X secons
 TODO: Scriptfilter on output (geoip etc)
 TODO: Fields in the form of -f-1 or -f2,
 
+# PACKAGES (deb / rpm)
+
+Prebuilt .deb and .rpm packages are attached to each
+[release](https://github.com/auduny/statpipe/releases). They are
+architecture independent and only need perl installed:
+
+    sudo dpkg -i statpipe_*_all.deb      # Debian, Ubuntu, ...
+    sudo dnf install statpipe-*.noarch.rpm  # Fedora, RHEL, ...
+
+Both install /usr/bin/statpipe and a man page. The packages are
+built by the packages.yml GitHub Action whenever a release is
+published.
+
 # COPYRIGHT
 
 Audun Ytterdal <audun@ytterdal.net>

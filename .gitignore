@@ -2,3 +2,5 @@
 .perlcriticrc
 .vstags
 *.tdy
+dist/
+statpipe.1
