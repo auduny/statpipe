@@ -1,0 +1,80 @@
+name: packages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to build packages for (e.g. v1.1.0)
+        required: true
+
+permissions:
+  contents: write # attach packages to releases
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag and version
+        id: v
+        run: |
+          TAG="${{ inputs.tag || github.event.release.tag_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out the tagged source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.v.outputs.tag }}
+
+      - name: Install fpm
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq rpm perl
+          sudo gem install fpm --no-document
+
+      - name: Build deb and rpm
+        run: |
+          set -eux
+          pod2man --release "${{ steps.v.outputs.version }}" \
+            --center "User Commands" statpipe statpipe.1
+          mkdir -p dist
+          fpm -s dir -t deb -n statpipe \
+            --version "${{ steps.v.outputs.version }}" --iteration 1 \
+            --architecture all \
+            --license "GPL-2.0-only" \
+            --maintainer "Audun Ytterdal <audun@ytterdal.net>" \
+            --url "https://github.com/auduny/statpipe" \
+            --description "Swiss-knife statistics for logfiles and pipes" \
+            --depends perl \
+            --package dist/ \
+            statpipe=/usr/bin/statpipe \
+            statpipe.1=/usr/share/man/man1/statpipe.1
+          fpm -s dir -t rpm -n statpipe \
+            --version "${{ steps.v.outputs.version }}" --iteration 1 \
+            --architecture noarch \
+            --license "GPL-2.0-only" \
+            --maintainer "Audun Ytterdal <audun@ytterdal.net>" \
+            --url "https://github.com/auduny/statpipe" \
+            --description "Swiss-knife statistics for logfiles and pipes" \
+            --depends perl \
+            --depends "perl(Getopt::Long)" \
+            --depends "perl(Pod::Usage)" \
+            --depends "perl(Scalar::Util)" \
+            --depends "perl(Time::HiRes)" \
+            --package dist/ \
+            statpipe=/usr/bin/statpipe \
+            statpipe.1=/usr/share/man/man1/statpipe.1
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: statpipe-packages
+          path: dist/*
+
+      - name: Attach packages to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.v.outputs.tag }}" dist/*.deb dist/*.rpm --clobber
