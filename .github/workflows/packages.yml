@@ -78,3 +78,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "${{ steps.v.outputs.tag }}" dist/*.deb dist/*.rpm --clobber
+
+  homebrew:
+    # Update Formula/statpipe.rb on the default branch to point at
+    # the newly released tarball. Only makes sense for real releases.
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Update Homebrew formula
+        run: |
+          set -eux
+          TAG="${{ github.event.release.tag_name }}"
+          URL="https://github.com/auduny/statpipe/archive/refs/tags/${TAG}.tar.gz"
+          SHA="$(curl -sL "$URL" | sha256sum | cut -d ' ' -f 1)"
+          sed -i \
+            -e "s|url \".*\"|url \"$URL\"|" \
+            -e "s|sha256 \".*\"|sha256 \"$SHA\"|" \
+            Formula/statpipe.rb
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/statpipe.rb
+          if git diff --cached --quiet; then
+            echo "Formula already up to date"
+          else
+            git commit -m "Update Homebrew formula for ${{ github.event.release.tag_name }}"
+            git push
+          fi
