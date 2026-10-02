@@ -1,20 +1,5 @@
 # Statpipe
 
-# INSTALL
-
-## Homebrew
-
-    brew tap auduny/statpipe https://github.com/auduny/statpipe
-    brew install auduny/statpipe/statpipe
-
-## Manual
-
-statpipe is a single perl script with no dependencies beyond perl's
-core modules. Copy it somewhere in your PATH:
-
-    curl -L -o /usr/local/bin/statpipe https://raw.githubusercontent.com/auduny/statpipe/master/statpipe
-    chmod +x /usr/local/bin/statpipe
-
 # NAME
 
 statpipe - swiss knife statistics
@@ -101,7 +86,17 @@ TODO: Freqreset. REset numbers every X secons
 TODO: Scriptfilter on output (geoip etc)
 TODO: Fields in the form of -f-1 or -f2,
 
-# PACKAGES (deb / rpm)
+# INSTALL
+
+## Manual
+
+statpipe is a single perl script with no dependencies beyond perl's
+core modules. Copy it somewhere in your PATH:
+
+    curl -L -o /usr/local/bin/statpipe https://raw.githubusercontent.com/auduny/statpipe/master/statpipe
+    chmod +x /usr/local/bin/statpipe
+
+## PACKAGES (deb / rpm)
 
 Prebuilt .deb and .rpm packages are attached to each
 [release](https://github.com/auduny/statpipe/releases). They are
@@ -114,6 +109,12 @@ Both install /usr/bin/statpipe and a man page. The packages are
 built by the packages.yml GitHub Action whenever a version tag is
 pushed; it creates the release as a draft with the packages
 attached, ready to publish.
+
+## Homebrew
+
+    brew tap auduny/statpipe https://github.com/auduny/statpipe
+    brew install auduny/statpipe/statpipe
+
 
 # COPYRIGHT
 
