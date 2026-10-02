@@ -22,6 +22,7 @@ my $opt_linefreq  = 0;     # Default none
 my $opt_timefreq  = 1;     # Default every 1 second
 my $opt_maxtime   = 0;     # Default forever
 my $opt_maxlines  = 0;     # Default forever
+my $opt_maxhits   = 0;     # Default forever
 my $opt_maxkeys   = 50000; # Default 50000 unique keys before we stop
 my $opt_case      = 0;     # Default case insensitive
 my $opt_limit     = 0;     # Default output all keys
@@ -48,6 +49,7 @@ my $result = GetOptions(
     'linefreq=i'    => \$opt_linefreq,   # how often do we update in lines
     'maxtime=i'     => \$opt_maxtime,    # when to stop
     'maxlines=i'    => \$opt_maxlines,   # when to stop
+    'maxhits=i'     => \$opt_maxhits,    # when to stop
     'maxkeys=i'     => \$opt_maxkeys,    # maxkeys (default 5000)
     'l|limit=i'     => \$opt_limit,      # how many do we print
     'n|not=s'       => \$opt_not,        # Not these
@@ -136,6 +138,12 @@ while (<STDIN>) {
     if ($opt_maxlines) {
         if ($lines >= $opt_maxlines) {
             print "Maxlines of $opt_maxlines reached.\n\n";
+            &end_pipe;
+        }
+    }
+    if ($opt_maxhits) {
+        if ($hitcount >= $opt_maxhits) {
+            print "Maxhits of $opt_maxhits reached.\n\n";
             &end_pipe;
         }
     }
@@ -396,6 +404,7 @@ Meaning that it will count all unique lines in the file/pipe.
   --linefreq        Frequency of output in lines (none)
   --maxtime         Time before closing the pipe in seconds (unlimited)
   --maxlines        Maximum numbers of lines to parse (unlimited)
+  --maxhits         Quit after N hits (unlimited)
   --multi|m         Match multiple times per line (no)
   --limit           Limit output of keys (0)
   --maxkeys         Max number of unique keys (50000)

@@ -44,6 +44,7 @@ Meaning that it will count all unique lines in the file/pipe.
      --linefreq        Frequency of output in lines (none)
      --maxtime         Time before closing the pipe in seconds (unlimited)
      --maxlines        Maximum numbers of lines to parse (unlimited)
+     --maxhits         Quit after N hits (unlimited)
      --multi|m         Match multiple times per line (no)
      --limit           Limit output of keys (0)
      --maxkeys         Max number of unique keys (50000)
