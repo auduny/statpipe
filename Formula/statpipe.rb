@@ -1,8 +1,8 @@
 class Statpipe < Formula
   desc "Swiss-knife statistics for logfiles and pipes"
   homepage "https://github.com/auduny/statpipe"
-  url "https://github.com/auduny/statpipe/archive/refs/tags/v1.2.0.tar.gz"
-  sha256 "6f3d506a0598b9fdcb71286698f7d1395ebca543c528e0ee83154218c11985a9"
+  url "https://github.com/auduny/statpipe/archive/refs/tags/v1.2.1.tar.gz"
+  sha256 "8680414a024040d5bede12d28ed2b254bf8f2be3985849a42d0151e0b36d9a51"
   license "GPL-2.0-only"
 
   uses_from_macos "perl"
