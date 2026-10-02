@@ -47,6 +47,7 @@ Meaning that it will count all unique lines in the file/pipe.
      --maxhits         Quit after N hits (unlimited)
      --multi|m         Match multiple times per line (no)
      --limit           Limit output of keys (0)
+     --min             Only print keys with at least N hits (0)
      --maxkeys         Max number of unique keys (50000)
      --not|n           Exclude lines with regex
      --group|g         Group numeric input into buckets (comma separated limits)
