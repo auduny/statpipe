@@ -1,16 +1,25 @@
 name: packages
 
+# Release procedure:
+#   1. bump $version in statpipe and push master
+#   2. git tag vX.Y.Z && git push origin vX.Y.Z
+#   3. this workflow builds deb+rpm, creates a DRAFT release with the
+#      packages attached, and updates the Homebrew formula
+#   4. review and publish the draft release
+# Assets go on a draft because this repo uses immutable releases:
+# assets cannot be attached after a release is published.
+
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: Tag to build packages for (e.g. v1.1.0)
+        description: Tag to build packages for (e.g. v1.2.0)
         required: true
 
 permissions:
-  contents: write # attach packages to releases
+  contents: write # create releases and push formula updates
 
 jobs:
   build:
@@ -19,7 +28,7 @@ jobs:
       - name: Resolve tag and version
         id: v
         run: |
-          TAG="${{ inputs.tag || github.event.release.tag_name }}"
+          TAG="${{ inputs.tag || github.ref_name }}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
@@ -73,16 +82,20 @@ jobs:
           name: statpipe-packages
           path: dist/*
 
-      - name: Attach packages to the release
-        if: github.event_name == 'release'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ steps.v.outputs.tag }}" dist/*.deb dist/*.rpm --clobber
+      - name: Create draft release with packages
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.v.outputs.tag }}
+          name: statpipe ${{ steps.v.outputs.version }}
+          draft: true
+          generate_release_notes: true
+          files: dist/*
 
   homebrew:
-    # Update Formula/statpipe.rb on the default branch to point at
-    # the newly released tarball. Only makes sense for real releases.
-    if: github.event_name == 'release'
+    # Update Formula/statpipe.rb on the default branch to point at the
+    # new tag's tarball. Runs on tag push only, not manual test builds.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -92,7 +105,7 @@ jobs:
       - name: Update Homebrew formula
         run: |
           set -eux
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ github.ref_name }}"
           URL="https://github.com/auduny/statpipe/archive/refs/tags/${TAG}.tar.gz"
           SHA="$(curl -sL "$URL" | sha256sum | cut -d ' ' -f 1)"
           sed -i \
@@ -108,6 +121,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Formula already up to date"
           else
-            git commit -m "Update Homebrew formula for ${{ github.event.release.tag_name }}"
+            git commit -m "Update Homebrew formula for ${{ github.ref_name }}"
             git push
           fi

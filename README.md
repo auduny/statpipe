@@ -111,8 +111,9 @@ architecture independent and only need perl installed:
     sudo dnf install statpipe-*.noarch.rpm  # Fedora, RHEL, ...
 
 Both install /usr/bin/statpipe and a man page. The packages are
-built by the packages.yml GitHub Action whenever a release is
-published.
+built by the packages.yml GitHub Action whenever a version tag is
+pushed; it creates the release as a draft with the packages
+attached, ready to publish.
 
 # COPYRIGHT
 
