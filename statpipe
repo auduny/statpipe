@@ -2,7 +2,7 @@
 # Copyright Audun Ytterdal <audun@ytterdal.net>
 # Licenced under GPL Version 2.
 
-my $version='1.1';
+my $version='1.2';
 use strict;
 use Getopt::Long;
 #use gnu version of options
